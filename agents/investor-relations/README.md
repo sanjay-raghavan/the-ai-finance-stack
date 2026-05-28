@@ -52,4 +52,8 @@
 
 ## Status notes
 
-v0.1 skeleton. Strong candidate for "second agent the reader cares about" after Controller — most CFOs feel the investor-update grind monthly.
+**v0.1 — fully authored.** Fourth reference implementation in The AI Finance Stack, after Controller, FP&A Analyst, and Treasury. Ships with three skills (`investor-update-draft`, `board-prereader`, `kpi-watch`); future v0.2 candidates include `investor-meeting-brief` (currently inline within the agent), `fundraise-comp-set`, and dedicated formatters for specific investor-segment communications.
+
+IR depends on three other agents — Controller for the close packet, FP&A Analyst for variance + scenarios, Treasury for runway. Run those first; IR consumes their outputs on Day 5 of close. If any required input is missing, IR halts rather than drafting around it — investor updates with synthesized numbers damage trust permanently.
+
+IR is also the agent most CFOs notice the value of fastest. The monthly investor update grind is genuinely painful for first-time and growth-stage CFOs; a Day 5 draft that's 80% there saves hours of weekend work.

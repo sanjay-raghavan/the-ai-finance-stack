@@ -1,0 +1,172 @@
+# Investor Relations — config.yaml
+
+# ─── Identity ──────────────────────────────────────────────────
+name: investor-relations
+handle: "@ir"
+version: 0.1.0
+description: Drafts the monthly investor update, prepares quarterly board reading material, monitors KPI movements, and prepares pre-meeting briefs for investor calls.
+tagline: "Your IR partner — drafts monthly investor updates from Controller/FP&A/Treasury inputs; CFO reviews and sends."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/investor-relations
+category: Finance & Accounting
+tags:
+  - investor-relations
+  - board-prep
+  - monthly-update
+  - kpi-monitor
+
+# ─── Base toolkit (Claude Code defaults) ────────────────────────
+toolkit:
+  - Read
+  - Write
+  - Glob
+  - Grep
+  - Bash
+
+# ─── Required MCPs ──────────────────────────────────────────────
+mcps:
+  required:
+    - slack
+  optional:
+    - googlecalendar     # for the meeting-brief trigger
+    - googledocs         # alternative output format
+    - notion-finance     # for investor-list.yaml and update archive
+    - gmail              # to draft (NOT send) the monthly update as a Gmail draft
+    # No accounting MCP required — IR consumes Stack-artifact outputs, not raw accounting data
+
+# ─── Required Finance Plugin skills ─────────────────────────────
+finance_plugin_skills:
+  required: []
+  optional:
+    - finance:financial-statements   # for formatting numeric tables in the update
+
+# ─── Inherited "Global Default" skills ──────────────────────────
+global_skills:
+  - sop-pdf
+  - sop-pptx        # used heavily for the quarterly board pre-reader
+  - sop-xlsx
+  - sop-docx        # used for the monthly investor update output
+
+# ─── Agent-specific skills ──────────────────────────────────────
+skills:
+  - investor-update-draft
+  - board-prereader
+  - kpi-watch
+
+# ─── Schedule ───────────────────────────────────────────────────
+schedule:
+  monthly:
+    update_draft:
+      cron: "0 9 5 * *"        # Day 5 of new period, 9am
+      timezone: America/New_York
+      depends_on:
+        - controller            # consumes close packet
+        - fpa-analyst           # consumes variance package and IR input
+        - treasury              # consumes weekly runway report
+  weekly:
+    kpi_watch:
+      cron: "0 15 * * 5"        # Friday 3pm
+      timezone: America/New_York
+  quarterly:
+    board_prereader:
+      # Triggered 14 days before each scheduled board meeting.
+      # Runtime reads meeting-schedule.yaml for upcoming dates.
+      trigger: scheduled_event
+      lead_time_days: 14
+  event_driven:
+    meeting_brief:
+      # Triggered when a calendar event matches an investor in investor-list.yaml.
+      trigger: googlecalendar_match
+      lead_time_hours: 24      # brief delivered 24h before the meeting
+
+# ─── Goals (success metrics) ────────────────────────────────────
+goals:
+  primary:
+    - Monthly investor update draft ready by 11am on Day 5 of close
+    - Quarterly board pre-reader ready 14 days before scheduled meeting
+    - Weekly KPI watch published every Friday by 4pm
+    - 100% of asserted claims in updates traceable to a Stack artifact
+    - Zero communications sent directly to investors (human-approval required)
+  metrics:
+    - monthly_update_on_time_count
+    - prereader_lead_time_days
+    - kpi_watch_on_time_count
+    - claims_without_source_citation       # target: 0
+    - direct_send_violations               # target: 0, every violation is a critical bug
+    - cfo_revision_word_count              # diagnostic: how much the CFO changes the draft
+
+# ─── Investor segmentation ──────────────────────────────────────
+investor_segments:
+  # Different investor groups can get different cuts of the monthly update.
+  # The investor-list.yaml file (~/finance-data/ir/investor-list.yaml) defines:
+  # - which segment each investor belongs to
+  # - what level of detail their segment receives
+  default_segment: lead_investors
+  segments:
+    lead_investors:
+      detail_level: full        # all sections, full detail
+      include_financial_tables: true
+    seed_investors:
+      detail_level: standard    # all sections, condensed detail
+      include_financial_tables: true
+    advisors:
+      detail_level: brief       # headlines and asks only
+      include_financial_tables: false
+
+# ─── Thresholds and alert criteria ──────────────────────────────
+thresholds:
+  runway_warning_months: 12              # flag in next update's risk section
+  kpi_material_move_pct: 20              # require FP&A narrative cross-check
+  kpi_critical_move_pct: 50              # halt and escalate
+  prior_update_recency_days: 14          # if last update <14 days ago, switch to brief format
+  cfo_revision_pct_warning: 40           # if CFO rewrites >40% of the draft, surface for skill improvement
+
+# ─── Output paths ───────────────────────────────────────────────
+outputs:
+  monthly_base_dir: "ir/{year}-{month:02d}/"
+  board_base_dir: "ir/board/{year}-Q{quarter}/"
+  kpi_watch_base_dir: "ir/kpi-watch/"
+  meeting_briefs_base_dir: "ir/meeting-briefs/"
+  investor_list_path: "ir/investor-list.yaml"
+  meeting_schedule_path: "ir/board/meeting-schedule.yaml"
+
+# ─── Model configuration ────────────────────────────────────────
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 12000      # Higher than other agents — IR drafts are longer
+  temperature: 0.3       # Slightly higher than Controller/Treasury — IR writes prose, needs some voice variation
+                          # Still low enough to maintain consistency across updates
+
+# ─── Notifications ──────────────────────────────────────────────
+notifications:
+  slack:
+    channels:
+      summary: "#ir-ops"
+      alerts: "#finance-alerts"
+  on_draft_ready: summary
+  on_kpi_watch_published: summary
+  on_runway_warning: summary
+  on_kpi_critical_move: alerts
+  on_missing_input: alerts
+  on_direct_send_violation: alerts    # should never fire; if it does, critical bug
+
+# ─── Logging ────────────────────────────────────────────────────
+logging:
+  level: info
+  retain_days: 730       # 2-year retention — investor updates are referenced years later
+  log_dir: "~/finance-logs/investor-relations/"
+
+# ─── Audit ──────────────────────────────────────────────────────
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/ir-audit-log.jsonl"
+  # Every draft, every claim, every source citation logged.
+
+# ─── Dependencies ───────────────────────────────────────────────
+agent_dependencies:
+  - controller        # consumes close packet
+  - fpa-analyst       # consumes variance package, scenario refresh, KPI snapshot
+  - treasury          # consumes runway report, cash projection
+  # IR degrades gracefully if any input is missing — pauses the draft and alerts.

@@ -17,9 +17,9 @@ Eight agents, one per Finance function. Each one represents a role on the Financ
 | **Controller** | `@controller` | Controller / Accounting | Month-end close, accruals, reconciliations, the books | 🟢 v0.1 — reference implementation |
 | **FP&A Analyst** | `@fpa-analyst` | FP&A | Variance vs. budget with driver decomposition, forecast refresh, scenario maintenance | 🟢 v0.1 — fully authored |
 | **Treasury** | `@treasury` | Treasury | Cash position, runway, banking, merchant-funds float (PSP-aware) | 🟢 v0.1 — fully authored |
+| **Investor Relations** | `@ir` | Investor Relations | Monthly investor update drafts, board reading material, KPI movement narrative | 🟢 v0.1 — fully authored |
 | **AP Watcher** | `@ap-watcher` | Accounts Payable | Vendor contracts, invoice validation, duplicate detection, payment-run prep | 🟡 Skeleton |
 | **AR Follow-Up** | `@ar-follow-up` | Accounts Receivable | Aging-based collections drafts, DSO tracking, deal-line-item validation | 🟡 Skeleton |
-| **Investor Relations** | `@ir` | Investor Relations | Monthly investor update drafts, board reading material, KPI movement narrative | 🟡 Skeleton |
 | **Revenue Ops** | `@revenue-ops` | Revenue Operations | Commission calculations, ARR tracking, deal-desk support, quota attainment | 🟡 Skeleton |
 | **Payroll Reviewer** | `@payroll-reviewer` | Payroll | Monthly payroll variance, headcount cost, comp/equity review | 🟡 Skeleton |
 
