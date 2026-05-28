@@ -10,7 +10,7 @@ Built and maintained by [Sanjay Raghavan](https://sanjayraghavan.substack.com), 
 
 ## What's in the Stack — v0.1
 
-Eight agents, one per Finance function. Each one represents a role on the Finance team.
+Ten core agents (one per Finance function), one industry-pack agent (crypto), and one execution-layer agent (the only one permitted to write to the GL).
 
 | Agent | Handle | Function | What it owns | Status |
 |-------|--------|----------|--------------|--------|
@@ -23,8 +23,9 @@ Eight agents, one per Finance function. Each one represents a role on the Financ
 | **Revenue Ops** | `@revenue-ops` | Revenue Operations | Commission calculations, ARR tracking, deal-desk support, quota attainment | 🟢 v0.1 — fully authored |
 | **Payroll Reviewer** | `@payroll-reviewer` | Payroll | Monthly payroll variance, headcount cost, comp/equity review | 🟢 v0.1 — fully authored |
 | **Prepay Manager** | `@prepay-manager` | Prepaid Accounting | Prepayment lifecycle: identification, amortization schedules, monthly JE proposals, balance reconciliation | 🟢 v0.1 — fully authored |
+| **Bank Recon** | `@bank-recon` | Cash & Banking | Daily transaction matching, unmatched-item investigation, period-end attestation across all bank/processor accounts | 🟢 v0.1 — fully authored |
 
-**Categories:** Every agent above is part of the **core**. The Stack also supports **industry packs** — specialty agents that augment the core for specific business types. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full extension model.
+**Categories:** Every agent above is part of the **core**. The Stack also supports **industry packs** (specialty agents for specific business types) and an **execution pack** (the only agents permitted to write to the GL). See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full extension model.
 
 ## Industry Packs
 
@@ -37,7 +38,16 @@ Eight agents, one per Finance function. Each one represents a role on the Financ
 | **SaaS** | `@trial-conversion-monitor`, `@usage-billing-reconciler`, `@churn-cohort-analyzer` | 🔵 v0.2 candidates | For subscription / usage-based SaaS businesses |
 | **Marketplace, Real Estate, others** | — | Open for community contribution | |
 
-**Future v0.2 core additions:** Tax, SOX Sampler, Investigation (triage layer), Chief of Staff (front-door orchestrator that routes to the other agents), QBO Poster (the first write-capable agent, gated through human approval).
+## Execution Pack
+
+The only agents in the Stack permitted to **write** to the general ledger. Every other agent is read-only. Execution-pack agents read approval records, validate integrity, post to the ERP, and write confirmations. The contract is identical for every ERP: propose → human approves → post.
+
+| Pack | Agent | Status | What it does |
+|------|-------|--------|--------------|
+| **Execution** | `@qbo-poster` | 🟢 v0.1 — fully authored | The only agent permitted to write to QuickBooks Online. Reads approval records, runs 8 validation checks, posts to QBO via MCP, verifies the post landed, writes confirmation. Idempotent, audit-grade, halt-on-anything-unexpected discipline. |
+| Execution | `@netsuite-poster`, `@xero-poster`, `@rillet-poster`, `@sage-intacct-poster` | 🔵 v0.2 candidates | Same propose → approve → post contract for other ERPs |
+
+**Future v0.2 core additions:** Tax, SOX Sampler, Investigation (triage layer), Chief of Staff (front-door orchestrator that routes to the other agents).
 
 ---
 
@@ -87,7 +97,7 @@ Then follow either:
 
 ## Project status
 
-**v0.1 — nine core agents + one industry-pack agent fully authored.** Controller, FP&A Analyst, Treasury, Investor Relations, AP Watcher, AR Follow-Up, Revenue Ops, Payroll Reviewer, Prepay Manager, plus Crypto Reconciler (crypto pack). Each ships with a `CLAUDE.md` (identity + operating doctrine), `config.yaml` (MCPs, schedules, goals, thresholds), `README.md` (install + usage), and 2–3 reference skills.
+**v0.1 — ten core agents + one industry-pack agent + one execution-pack agent fully authored.** Controller, FP&A Analyst, Treasury, Investor Relations, AP Watcher, AR Follow-Up, Revenue Ops, Payroll Reviewer, Prepay Manager, Bank Recon, plus Crypto Reconciler (crypto pack) and QBO Poster (execution pack — the only write-capable agent, gated through human approval). Each ships with a `CLAUDE.md` (identity + operating doctrine), `config.yaml` (MCPs, schedules, goals, thresholds), `README.md` (install + usage), and 2–3 reference skills.
 
 **On the v0.2 roadmap:**
 

@@ -1,0 +1,143 @@
+# Bank Recon — config.yaml
+
+name: bank-recon
+handle: "@bank-recon"
+version: 0.1.0
+description: Continuously matches bank transactions to GL/subledger entries. Auto-clears high-confidence matches; queues ambiguous items. Produces formal period-end attestations.
+tagline: "Your staff accountant for cash — hourly transaction matching, aging discipline, audit-quality period-end attestations."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/bank-recon
+category: Finance & Accounting
+pack: core
+tags: [bank-recon, cash, matching, attestation]
+
+toolkit: [Read, Write, Glob, Grep, Bash]
+
+mcps:
+  required:
+    - one_of: [mercury, modern-treasury, plaid]
+    - one_of: [quickbooks, xero, netsuite]
+    - slack
+  optional:
+    # Each additional banking MCP expands the set of accounts reconciled
+    - mercury
+    - modern-treasury
+    - plaid
+    # PSP-specific banking sources
+    - stripe
+    - paypal
+    - square
+
+finance_plugin_skills:
+  required: []
+  optional:
+    - finance:reconciliation       # methodology + formatting
+
+global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
+
+skills:
+  - transaction-matching
+  - unmatched-investigation
+  - period-end-attestation
+
+schedule:
+  continuous:
+    matching_pass_business_hours:
+      cron: "0 8-18 * * 1-5"       # hourly during business hours
+      timezone: America/New_York
+    matching_pass_off_hours:
+      cron: "0 0,4,20 * * *"       # every 4 hours overnight + weekends
+      timezone: America/New_York
+  daily:
+    digest:
+      cron: "0 8 * * 1-5"          # 8am weekdays
+      timezone: America/New_York
+  weekly:
+    aging_report:
+      cron: "0 9 * * 1"            # Monday 9am
+      timezone: America/New_York
+  monthly:
+    period_end_attestation:
+      cron: "0 10 1 * *"           # Day 1 of new period, 10am — for Controller's close
+      timezone: America/New_York
+
+goals:
+  primary:
+    - 100% of bank transactions matched within 24 hours of clearing
+    - Zero unmatched items aged >30 days
+    - Period-end attestation delivered to Controller by Day 1, 10:30am
+    - Zero attestations closed with non-zero residual
+    - Zero unknown-counterparty transactions unsurfaced
+  metrics:
+    - match_rate_pct
+    - auto_clear_rate_pct
+    - aged_items_count
+    - period_end_residual_dollars     # target: 0
+    - unknown_counterparty_alerts
+
+thresholds:
+  match_auto_clear_score: 0.95
+  match_review_score_min: 0.70
+  amount_exact_match_tolerance_dollars: 0
+  amount_close_match_tolerance_dollars: 10
+  date_window_close_days: 3
+  date_window_loose_days: 14
+  aging_warning_days: 14
+  aging_critical_days: 30
+  check_timing_max_days: 30
+  ach_wire_timing_max_days: 5
+
+# Account-level configuration
+accounts:
+  # Maintained in ~/finance-data/bank-recon/accounts.yaml
+  # Each account: bank source, account number (last 4 only in summaries),
+  # GL account, account type (operating/reserve/merchant-settlement),
+  # custody arrangement
+  source: "~/finance-data/bank-recon/accounts.yaml"
+
+outputs:
+  matching_dir: "bank-recon/{year}-{month:02d}/matching/"
+  attestation_dir: "bank-recon/{year}-{month:02d}/attestations/"
+  aging_dir: "bank-recon/{year}-{month:02d}/aging/"
+  daily_digest_dir: "bank-recon/{year}-{month:02d}/digests/"
+
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 6000
+  temperature: 0.1
+
+notifications:
+  slack:
+    channels:
+      summary: "#bank-recon"
+      alerts: "#finance-alerts"
+  on_daily_digest: summary
+  on_ambiguous_match_queue: summary
+  on_aging_warning: summary
+  on_aging_critical: alerts
+  on_unknown_counterparty: alerts
+  on_attestation_failure: alerts
+  on_data_integrity_issue: alerts
+
+logging:
+  level: info
+  retain_days: 2555                # 7-year retention for audit reconstruction
+  log_dir: "~/finance-logs/bank-recon/"
+
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/bank-recon-audit-log.jsonl"
+  log_every_match_decision: true   # every auto-clear logged for forensic reconstruction
+
+# Bank Recon feeds Controller (period-end attestation for close packet) and Treasury
+# (match-quality signal informs cash projection accuracy). It reads from many other agents'
+# outputs to anticipate expected transactions.
+agent_dependencies:
+  - ap-watcher              # expected outflows from payment runs
+  - ar-follow-up            # expected receipts from collections
+  - payroll-reviewer        # expected payroll outflows
+  - treasury                # expected inter-account transfers
+# Bank Recon degrades gracefully — matching works on amount/date/memo even without
+# expected-transaction context, but the context dramatically improves the match rate.

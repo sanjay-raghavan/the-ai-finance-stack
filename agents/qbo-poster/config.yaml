@@ -1,0 +1,131 @@
+# QBO Poster — config.yaml
+
+name: qbo-poster
+handle: "@qbo-poster"
+version: 0.1.0
+description: The only agent permitted to write to the QuickBooks Online GL. Reads approval records, validates integrity, posts to QBO, writes confirmations. Strictly read-only on all other systems.
+tagline: "The execution layer — propose, human-approve, then post. Idempotent, audit-grade, one-way-door discipline."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/qbo-poster
+category: Finance & Accounting
+pack: execution                              # First agent in the execution pack
+tags: [qbo, poster, gl-write, human-approved, idempotent]
+
+toolkit: [Read, Write, Glob, Grep, Bash]
+
+mcps:
+  required:
+    - quickbooks                             # The ONLY write target. Must be QBO; others use their own Poster.
+    - slack
+  optional: []
+  # Note: QBO Poster does NOT take an `optional` ERP MCP. The companion agents
+  # NetSuite Poster, Xero Poster, etc. (each their own agent) handle other ERPs.
+
+finance_plugin_skills:
+  required:
+    - finance:journal-entry                  # JE structure validation
+  optional: []
+
+global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
+
+skills:
+  - approval-validation
+  - post-to-qbo
+  - reversal-handling
+
+schedule:
+  continuous:
+    approval_polling_business_hours:
+      cron: "* 8-18 * * 1-5"                 # every minute during business hours
+      timezone: America/New_York
+    approval_polling_off_hours:
+      cron: "*/5 * * * *"                    # every 5 minutes overnight + weekends
+      timezone: America/New_York
+
+goals:
+  primary:
+    - Zero posts without a valid approval record
+    - Zero double-posts (idempotent enforcement)
+    - 100% of approved JEs posted within 5 minutes of approval (business hours)
+    - Zero silent failures (every failure surfaced to #finance-alerts)
+    - 100% of posts include confirmation reply in originating Slack thread
+  metrics:
+    - posts_completed
+    - posts_failed
+    - approval_validation_failures           # target: 0
+    - duplicate_post_prevented                # safety-net trigger count
+    - mean_post_latency_seconds
+    - silent_failure_count                    # target: 0, EVERY violation is critical
+
+thresholds:
+  approval_validation_strict: true            # no leniency on approval record format
+  idempotency_check_required: true            # always check QBO before posting
+  closed_period_block: true                   # never post into a closed QBO period
+  post_verification_required: true            # always re-query QBO after post to verify
+  post_verification_timeout_seconds: 30
+  api_retry_max_attempts: 1                   # one retry on 5xx, then halt
+  api_retry_delay_seconds: 300                # 5-minute wait between retries
+
+# Authorized approvers configuration
+authorized_approvers:
+  # Maintained in ~/finance-data/poster-config/authorized-approvers.yaml
+  # Each entry: name, Slack user ID, role, approval limits (e.g., max $ per entry)
+  source: "~/finance-data/poster-config/authorized-approvers.yaml"
+  # ANY approval not from an authorized approver is rejected even if the Slack
+  # message uses the correct command syntax. Authorization is enforced server-side.
+
+approval_directories:
+  pending: "~/finance-data/pending-approvals/"
+  approved: "~/finance-data/approved/"
+  posted: "~/finance-data/posted/"
+  failed: "~/finance-data/failed/"
+
+outputs:
+  posted_dir: "posted/{year}-{month:02d}/"
+  failed_dir: "failed/{year}-{month:02d}/"
+
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 4000
+  temperature: 0.0                           # Zero creativity. Strictly deterministic.
+
+notifications:
+  slack:
+    channels:
+      summary: "#finance-approvals"          # confirmations of successful posts
+      alerts: "#finance-alerts"              # any failure or unexpected condition
+  on_post_confirmed: summary
+  on_post_failed: alerts
+  on_approval_validation_failure: alerts
+  on_idempotency_safety_net_trigger: alerts
+  on_closed_period_block: alerts
+  on_unauthorized_approver_attempt: alerts
+  on_api_retry: alerts
+  on_silent_failure_suspected: alerts
+
+logging:
+  level: info                                # info, not debug — too much detail otherwise
+  retain_days: 2555                          # 7-year audit retention
+  log_dir: "~/finance-logs/qbo-poster/"
+
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/qbo-poster-audit-log.jsonl"
+  log_every_api_call: true                   # request + response logged for every QBO call
+  immutable: true                            # audit log is append-only
+
+# QBO Poster reads from every agent that proposes JEs:
+agent_dependencies:
+  - controller                               # close JEs
+  - prepay-manager                           # amortization JEs
+  - payroll-reviewer                         # payroll-related JEs
+  - bank-recon                               # adjustment JEs
+  - ar-follow-up                             # revenue-rec adjustments
+  - revenue-ops                              # commission JEs
+  - crypto-reconciler                        # crypto close JEs
+
+# Architectural note: QBO Poster is the ONLY agent in the "execution" pack for v0.1.
+# Future Posters: netsuite-poster, xero-poster, rillet-poster, each with the same
+# strict approval/idempotency contract but ERP-specific posting mechanics.
