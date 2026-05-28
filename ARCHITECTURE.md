@@ -2,7 +2,9 @@
 
 Three layers, each owning a distinct concern. They compose into a complete Finance agent system that runs locally on your own hardware and is shareable with anyone running an MCP-compatible AI client.
 
-The agent inventory itself follows an **extension model** — universal core agents, optional industry packs, shared ERP-specific skill library — described after the three-layer architecture below.
+The agent inventory itself follows an **extension model** — universal core agents, optional industry packs, an execution pack for write-capable agents, and a shared ERP-specific skill library — described after the three-layer architecture below.
+
+A fourth concern — **how agents talk to your actual financial systems** — is covered in [MCP_INTEGRATION.md](./MCP_INTEGRATION.md). The short version: the Stack uses a four-tier integration pattern (official MCP → bundled local MCP → Bash wrapper → hosted gateway) so the agents work even when the official MCP for a tool is admin-gated or doesn't exist.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -249,12 +251,53 @@ A pure-fiat SaaS company runs the 8 core agents only — no crypto pack, no PSP 
 
 A pure-crypto Web3 company might lean heavier on the crypto pack and lighter on the core (e.g., no IR if no traditional investors yet) — the Stack still composes.
 
+## The MCP integration layer
+
+Agents are useless without connections to the tools that hold your books. The Stack treats MCP integration as a first-class architectural concern, not an afterthought.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   MCP INTEGRATION — four tiers, picked by what works            │
+│   ────────────────────────────────────────────────────────────  │
+│                                                                 │
+│   TIER 1 — Official MCP (vendor-built)                          │
+│     · slack, gmail, notion, google-calendar                     │
+│     · Use when the official MCP works at user scope             │
+│                                                                 │
+│   TIER 2 — Bundled local MCP (ships in this repo, mcps/)        │
+│     · qbo, ramp, mercury, stripe, brex, rippling, carta         │
+│     · Use when the official MCP is admin-gated or doesn't exist │
+│     · Runs locally under your OAuth grant; credentials never    │
+│       leave your machine                                         │
+│                                                                 │
+│   TIER 3 — Bash + Python wrapper                                │
+│     · For one-off integrations not worth a full MCP             │
+│     · Agent shells out to a script; credentials in dotfile     │
+│                                                                 │
+│   TIER 4 — Hosted MCP gateway (Smithery, Composio, etc.)        │
+│     · Fallback when you want zero local setup                   │
+│     · Trade-off: your data routes through a third party        │
+│                                                                 │
+│   Plus: create-finance-mcp skill (v0.2)                         │
+│     · Scaffolds new Tier-2 MCPs from a template — the           │
+│       leverage move for community contributions                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Agents are agnostic to which tier is in use. They declare MCP names in `config.yaml` (e.g., `quickbooks`, `slack`) and the user's Claude Desktop config maps each name to a specific server. Switching from Tier 4 (Smithery-hosted QBO) to Tier 2 (local bundled QBO MCP) is a two-line config edit — no agent code changes.
+
+This is what makes the Stack work for non-admin QBO users, for organizations with strict data-residency requirements, and for tools where no vendor MCP exists yet. See [MCP_INTEGRATION.md](./MCP_INTEGRATION.md) for the full hierarchy, the bundled MCP catalog, and the contribution flow.
+
+---
+
 ## Composition rules
 
 Three rules govern how packs compose with the core:
 
-1. **Core agents don't depend on pack agents.** A reader who installs only the 8 core agents has a complete Finance function. Industry packs are additive, never required.
-2. **Pack agents may depend on core agents.** `crypto-reconciler` feeds Controller's close packet; it can't operate fully without Controller.
+1. **Core agents don't depend on pack agents.** A reader who installs only the core agents has a complete Finance function. Industry packs and the execution pack are additive, never required for the core to function (though no posting agent means no GL writes — proposals stay in the queue until you set one up).
+2. **Pack agents may depend on core agents.** `crypto-reconciler` feeds Controller's close packet; it can't operate fully without Controller. `qbo-poster` posts JEs proposed by Controller, Prepay Manager, Bank Recon, and others — it depends on at least one proposing agent.
 3. **Pack agents may depend on other pack-mates from the same pack.** `crypto-tax-tracker` (future) depends on `crypto-reconciler`'s output. Cross-pack dependencies are avoided.
 
 This keeps the Stack predictable: any subset of {core ∪ chosen packs} is internally coherent.
@@ -272,7 +315,13 @@ The agent's README should explain which core agents it integrates with and which
 
 ## Roadmap
 
-- **v0.1 (shipped):** 8 core agents + crypto-reconciler (first pack agent)
-- **v0.2 (next):** ERP skill library scaffolded; QBO Poster as the first poster agent (the only category of agent allowed to write to the GL, gated through human approval); 2-3 additional crypto pack agents
+- **v0.1 (shipped):** 10 core agents + crypto-reconciler (first pack agent) + QBO Poster (first execution-pack agent — the only category allowed to write to the GL, gated through human approval)
+- **v0.2 (next):**
+   - **Bundled local MCPs** under `mcps/` for QBO, Ramp, Mercury, Stripe, Brex, Rippling, Carta — solves the admin-gated-MCP problem (especially for QBO)
+   - **`create-finance-mcp` skill** for community-contributed Tier-2 MCPs
+   - **MCP registry server** so agents install via one JSON snippet, no `git clone`
+   - **Additional execution-pack agents:** netsuite-poster, xero-poster, rillet-poster, sage-intacct-poster
+   - **ERP skill library** scaffolded under `skills/erp/`
+   - 2-3 additional crypto pack agents (defi-monitor, crypto-tax-tracker, staking-yield-tracker)
 - **v0.3:** PSP pack authored (fraud-loss-watcher, interchange-reconciler, merchant-onboarding-tracker)
 - **v0.4+:** SaaS pack, Marketplace pack opened for community contribution

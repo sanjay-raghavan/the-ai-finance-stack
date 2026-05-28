@@ -87,10 +87,12 @@ Then follow either:
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** — How the three layers fit together (Agent Packages, Personal Runtime, Public Registry)
 - **[AGENT_PACKAGE_FORMAT.md](./AGENT_PACKAGE_FORMAT.md)** — The spec every agent in the Stack follows
+- **[MCP_INTEGRATION.md](./MCP_INTEGRATION.md)** — The four integration patterns (official MCP → bundled local MCP → Bash wrapper → hosted gateway). How the Stack connects to QBO, Ramp, Mercury, Stripe, and the rest without depending on admin-gated official MCPs.
 - **[SETUP_DEDICATED_LAPTOP.md](./SETUP_DEDICATED_LAPTOP.md)** — How to set up an old Mac/MacBook as your Tier-5 agent server
 - **[CURRICULUM_MAP.md](./CURRICULUM_MAP.md)** — How each agent here maps to a lesson in the *AI-Powered Finance* series
 - **agents/** — Each subfolder is one installable agent package
-- **registry/** — The public MCP server (Python/FastAPI) that hosts the Stack for outside users
+- **mcps/** — Bundled local MCP servers (v0.2). For tools where the official MCP requires admin access or doesn't exist: QBO, Ramp, Mercury, Stripe, Brex, Rippling, Carta.
+- **registry/** — The public MCP registry server (Python/FastAPI) that hosts the Stack catalog for outside users — v0.2 deliverable
 - **runtime/** — Helper scripts for the dedicated-laptop setup (cron, launchd plists, log rotation)
 
 ---
@@ -101,8 +103,11 @@ Then follow either:
 
 **On the v0.2 roadmap:**
 
-- **MCP registry server** — public Cloudflare Workers endpoint so the install path becomes a single JSON snippet (no `git clone` required)
+- **Bundled local MCPs** — Python MCP servers under `mcps/` for the tools where the official MCP is admin-gated (QBO) or doesn't exist (Mercury, Stripe, Brex, Rippling, Carta). Each runs locally under the user's own OAuth grant — no admin requirement, no third-party hosting, credentials never leave the user's machine. See [MCP_INTEGRATION.md](./MCP_INTEGRATION.md) for the full pattern hierarchy and rollout plan.
+- **`create-finance-mcp` skill** — scaffolds a new bundled local MCP from a template (OAuth, token refresh, error handling, logging, tests). The leverage move that lets the community contribute MCPs at the same standard.
+- **MCP registry server** — public Cloudflare Workers endpoint that serves the Stack's agent catalog so the install path becomes a single JSON snippet (no `git clone` required). Separate concern from the bundled MCPs above — this distributes *agents*, while `mcps/` provides the *tool connectors* those agents use.
 - **Industry packs** — additional agents organized by industry (e.g., *crypto pack* with `crypto-reconciler` for companies using Tres / Integral / Bitwave; *SaaS pack*; *marketplace pack*)
+- **Additional execution-pack Posters** — `netsuite-poster`, `xero-poster`, `rillet-poster`, `sage-intacct-poster`. Same propose → approve → post contract, ERP-specific posting mechanics.
 - **ERP-specific skill library** — shared skills under `skills/erp/` (e.g., `qbo-je-format`, `netsuite-multi-entity`, `rillet-conventions`) that any core agent invokes when working with a specific accounting system. Core agents stay ERP-agnostic; ERP differences live in the skill layer.
 - **Runtime helpers** — `runtime/run-agent.sh`, `notify.py`, business-day-defer logic for the dedicated laptop setup
 - **Additional core skills per agent** — e.g., `kpi-snapshot` and `what-if-analysis` for FP&A; `merchant-float-separation` as a dedicated skill for Treasury
