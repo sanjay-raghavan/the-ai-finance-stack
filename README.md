@@ -51,6 +51,28 @@ The only agents in the Stack permitted to **write** to the general ledger. Every
 
 ---
 
+## MCP Connectors
+
+Agents are useless without connections to the tools that hold your books. The Stack uses a [four-tier integration pattern](./MCP_INTEGRATION.md) (official MCP → bundled local MCP → Bash wrapper → hosted gateway) so the agents work whether your tools have great official MCPs, admin-gated MCPs, or no MCP at all.
+
+For tools where the official MCP is admin-gated (QBO) or doesn't exist (Mercury, Stripe, Brex, Rippling, Carta), the Stack ships **bundled local MCPs** under [`mcps/`](./mcps/). Each runs locally under your own OAuth grant — credentials never leave your machine, and non-admin users get the same tool surface as admins.
+
+| MCP | What it connects to | Used by agents | Status |
+|-----|-----|-----|-----|
+| [`qbo`](./mcps/) | QuickBooks Online | Controller, Prepay Manager, Bank Recon, AP Watcher, AR Follow-Up, QBO Poster | 🔵 v0.2 — scaffold pending |
+| [`ramp`](./mcps/) | Ramp (cards + bills) | AP Watcher, Controller | 🔵 v0.2 — scaffold pending |
+| [`mercury`](./mcps/) | Mercury (banking) | Treasury, Bank Recon | 🔵 v0.2 — scaffold pending |
+| [`stripe`](./mcps/) | Stripe (payments) | Revenue Ops, Bank Recon, Treasury | 🔵 v0.2 — scaffold pending |
+| [`brex`](./mcps/) | Brex (cards + cash) | AP Watcher, Treasury | 🔵 v0.2 — scaffold pending |
+| [`rippling`](./mcps/) | Rippling (HRIS + payroll) | Payroll Reviewer, Controller | 🔵 v0.2 — scaffold pending |
+| [`carta`](./mcps/) | Carta (cap table + SBC) | Future SBC agent, IR | 🔵 v0.2 — scaffold pending |
+
+**For Slack, Gmail, Notion, Google Calendar, Linear, Asana, GitHub:** the Stack uses the vendor's official MCP — no bundling needed.
+
+**Coming in v0.2:** a `create-finance-mcp` skill that scaffolds new bundled MCPs from a template, so the community can contribute connectors at the same standard.
+
+---
+
 ## Quick install
 
 The public MCP registry server is on the v0.2 roadmap (see [Project Status](#project-status) below). Until then, the install path is:
