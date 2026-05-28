@@ -63,4 +63,8 @@ When the CFO asks "how much cash do we have?" the answer is operating cash. The 
 
 ## Status notes
 
-v0.1 skeleton. Critical agent for pre-IPO companies with limited cash buffer — this is the agent that wakes the CFO up before payroll fails.
+**v0.1 — fully authored.** Third reference implementation in The AI Finance Stack, after Controller and FP&A Analyst. Ships with three skills (`cash-position-snapshot`, `thirteen-week-projection`, `runway-calc`); future v0.2 candidates include `merchant-float-separation` (split out as a dedicated skill) and `fx-exposure-tracker`.
+
+Treasury is the agent most CFOs feel the strongest need for, because runway is the only metric that ultimately matters. The PSP-specific merchant-funds float separation makes this agent particularly differentiated against generic Finance-AI tools that conflate the two pools.
+
+Treasury feeds outputs to FP&A Analyst (for forecast refresh) and IR (for monthly investor updates). It consumes outputs from AR Follow-Up, AP Watcher, and Payroll Reviewer to build the 13-week projection.
