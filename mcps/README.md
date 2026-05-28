@@ -8,11 +8,12 @@ See [MCP_INTEGRATION.md](../MCP_INTEGRATION.md) for the full integration-pattern
 
 ## v0.2 catalog
 
-Seven MCPs planned for v0.2. Each is a small Python server (~200–400 lines) that the user runs locally with their own OAuth credentials.
+Eight MCPs planned for v0.2. Each is a small Python server (~200–400 lines) that the user runs locally with their own OAuth credentials.
 
 | MCP | Tools served | Used by agents | Status |
 |-----|-------|----------------|--------|
 | [`qbo/`](./qbo/) | QuickBooks Online | Controller, Prepay Manager, Bank Recon, AP Watcher, AR Follow-Up, QBO Poster | 🔵 v0.2 — scaffold pending |
+| [`bill-com/`](./bill-com/) | BILL (AP, AR, Spend & Expense) | AP Watcher, AR Follow-Up, Controller | 🔵 v0.2 — scaffold pending |
 | [`ramp/`](./ramp/) | Ramp (cards + bills) | AP Watcher, Controller | 🔵 v0.2 — scaffold pending |
 | [`mercury/`](./mercury/) | Mercury (banking) | Treasury, Bank Recon | 🔵 v0.2 — scaffold pending |
 | [`stripe/`](./stripe/) | Stripe (payments) | Revenue Ops, Bank Recon, Treasury | 🔵 v0.2 — scaffold pending |
@@ -20,7 +21,7 @@ Seven MCPs planned for v0.2. Each is a small Python server (~200–400 lines) th
 | [`rippling/`](./rippling/) | Rippling (HRIS + payroll) | Payroll Reviewer, Controller | 🔵 v0.2 — scaffold pending |
 | [`carta/`](./carta/) | Carta (cap table + SBC) | Future SBC agent, IR | 🔵 v0.2 — scaffold pending |
 
-The order of rollout follows agent dependency: QBO first (used by 6 agents), then Mercury and Stripe (used by Treasury and Bank Recon), then the rest.
+The order of rollout follows agent dependency: QBO first (used by 6 agents), then Bill.com and Mercury (broad AP/banking coverage), then the rest.
 
 ---
 

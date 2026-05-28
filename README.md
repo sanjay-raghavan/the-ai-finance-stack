@@ -60,6 +60,7 @@ For tools where the official MCP is admin-gated (QBO) or doesn't exist (Mercury,
 | MCP | What it connects to | Used by agents | Status |
 |-----|-----|-----|-----|
 | [`qbo`](./mcps/) | QuickBooks Online | Controller, Prepay Manager, Bank Recon, AP Watcher, AR Follow-Up, QBO Poster | 🔵 v0.2 — scaffold pending |
+| [`bill-com`](./mcps/) | BILL (AP, AR, Spend & Expense) | AP Watcher, AR Follow-Up, Controller | 🔵 v0.2 — scaffold pending |
 | [`ramp`](./mcps/) | Ramp (cards + bills) | AP Watcher, Controller | 🔵 v0.2 — scaffold pending |
 | [`mercury`](./mcps/) | Mercury (banking) | Treasury, Bank Recon | 🔵 v0.2 — scaffold pending |
 | [`stripe`](./mcps/) | Stripe (payments) | Revenue Ops, Bank Recon, Treasury | 🔵 v0.2 — scaffold pending |

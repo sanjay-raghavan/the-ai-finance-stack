@@ -48,11 +48,12 @@ You pick the highest tier that actually works for your tool + your access level.
 
 **What it is:** A small Python MCP server (typically ~200–400 lines) that lives in `mcps/<tool>/` in this repo. The user runs it locally on the same machine as the agents. It authenticates with their own credentials and exposes the tool's API as MCP tools.
 
-**The v0.1 plan ships seven of these:**
+**The v0.2 plan ships eight of these:**
 
 | Tool | Why bundled (vs. relying on the official MCP) | Status |
 |------|------------------------------------------------|--------|
 | `qbo` | Intuit's official MCP requires admin access; most non-admin users can't use it for the Stack's read patterns | 🔵 v0.2 |
+| `bill-com` | No official MCP exists. BILL has a modern REST v3 API plus an LLM-friendly index at developer.bill.com/llms.txt — easy Tier-2 candidate. Used by AP-heavy teams. | 🔵 v0.2 |
 | `ramp` | Need broader API surface than the official MCP exposes (especially card-level filters and category-level aggregations) | 🔵 v0.2 |
 | `mercury` | No official MCP exists | 🔵 v0.2 |
 | `stripe` | No official MCP exists; the Stack needs payout-by-currency and dispute-detail endpoints | 🔵 v0.2 |
