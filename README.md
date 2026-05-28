@@ -22,10 +22,22 @@ Eight agents, one per Finance function. Each one represents a role on the Financ
 | **AR Follow-Up** | `@ar-follow-up` | Accounts Receivable | Aging-based collections drafts, DSO tracking, deal-line-item validation | 🟢 v0.1 — fully authored |
 | **Revenue Ops** | `@revenue-ops` | Revenue Operations | Commission calculations, ARR tracking, deal-desk support, quota attainment | 🟢 v0.1 — fully authored |
 | **Payroll Reviewer** | `@payroll-reviewer` | Payroll | Monthly payroll variance, headcount cost, comp/equity review | 🟢 v0.1 — fully authored |
+| **Prepay Manager** | `@prepay-manager` | Prepaid Accounting | Prepayment lifecycle: identification, amortization schedules, monthly JE proposals, balance reconciliation | 🟢 v0.1 — fully authored |
 
-**Categories:** Every agent is tagged `Finance & Accounting`. Future stacks may add `Sales & RevOps` or `People & Payroll` as separate categories.
+**Categories:** Every agent above is part of the **core**. The Stack also supports **industry packs** — specialty agents that augment the core for specific business types. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full extension model.
 
-**Future v0.2 candidates:** Tax, SOX Sampler, Investigation (triage layer), Chief of Staff (front-door orchestrator that routes to the other eight).
+## Industry Packs
+
+| Pack | Agent | Status | What it adds |
+|------|-------|--------|--------------|
+| **Crypto** | `@crypto-reconciler` | 🟢 v0.1 — fully authored | Multi-chain wallet reconciliation, gas/fee separation, cost-basis sanity checks. For companies with crypto on the balance sheet (Tres Finance / Bitwave / Integral subledgers). |
+| Crypto | `@defi-monitor` | 🔵 v0.2 candidate | DeFi positions, impermanent loss, yield decomposition |
+| Crypto | `@crypto-tax-tracker` | 🔵 v0.2 candidate | FIFO/LIFO tax-lot tracking, jurisdiction-aware reporting |
+| **PSP** | `@fraud-loss-watcher`, `@interchange-reconciler` | 🔵 v0.2 candidates | For payment service providers (Strand-shaped). Fraud loss monitoring, interchange/network-fee reconciliation. |
+| **SaaS** | `@trial-conversion-monitor`, `@usage-billing-reconciler`, `@churn-cohort-analyzer` | 🔵 v0.2 candidates | For subscription / usage-based SaaS businesses |
+| **Marketplace, Real Estate, others** | — | Open for community contribution | |
+
+**Future v0.2 core additions:** Tax, SOX Sampler, Investigation (triage layer), Chief of Staff (front-door orchestrator that routes to the other agents), QBO Poster (the first write-capable agent, gated through human approval).
 
 ---
 
@@ -75,7 +87,7 @@ Then follow either:
 
 ## Project status
 
-**v0.1 — all eight core agents fully authored.** Controller, FP&A Analyst, Treasury, Investor Relations, AP Watcher, AR Follow-Up, Revenue Ops, and Payroll Reviewer. Each ships with a `CLAUDE.md` (identity + operating doctrine), `config.yaml` (MCPs, schedules, goals, thresholds), `README.md` (install + usage), and 2–3 reference skills.
+**v0.1 — nine core agents + one industry-pack agent fully authored.** Controller, FP&A Analyst, Treasury, Investor Relations, AP Watcher, AR Follow-Up, Revenue Ops, Payroll Reviewer, Prepay Manager, plus Crypto Reconciler (crypto pack). Each ships with a `CLAUDE.md` (identity + operating doctrine), `config.yaml` (MCPs, schedules, goals, thresholds), `README.md` (install + usage), and 2–3 reference skills.
 
 **On the v0.2 roadmap:**
 

@@ -1,0 +1,117 @@
+# Prepay Manager — config.yaml
+
+name: prepay-manager
+handle: "@prepay-manager"
+version: 0.1.0
+description: Owns the prepayment lifecycle. Identifies prepayments from the AP stream, maintains amortization schedules, proposes monthly amortization JEs, reconciles prepaid balances.
+tagline: "Your prepaid accountant — identifies prepayments, sets up amortization schedules, proposes monthly JEs, reconciles prepaid asset balances."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/prepay-manager
+category: Finance & Accounting
+pack: core
+tags: [prepaid, amortization, accruals, close, schedule-management]
+
+toolkit: [Read, Write, Glob, Grep, Bash]
+
+mcps:
+  required:
+    - one_of: [quickbooks, xero, netsuite]
+    - slack
+  optional:
+    - notion-finance      # for contract storage / reference
+
+finance_plugin_skills:
+  required: []
+  optional:
+    - finance:journal-entry-prep    # for monthly amortization JE format
+
+global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
+
+skills:
+  - prepay-identification
+  - amortization-schedule
+  - monthly-amortization
+
+schedule:
+  continuous:
+    identification_sweep:
+      cron: "0 */4 8-18 * * 1-5"      # every 4 hours during business hours
+      timezone: America/New_York
+      depends_on:
+        - ap-watcher                   # reads AP Watcher's staged invoices
+  monthly:
+    amortization_run:
+      cron: "0 7 1 * *"                # Day 1 of close, 7am — before Controller's 11am accrual pass
+      timezone: America/New_York
+    reconciliation:
+      cron: "0 9 2 * *"                # Day 2 of close, 9am
+      timezone: America/New_York
+  quarterly:
+    schedule_review:
+      cron: "0 9 1 1,4,7,10 *"         # First day of each quarter
+      timezone: America/New_York
+
+goals:
+  primary:
+    - Capture 100% of prepayments from the AP stream within 4 hours of invoice arrival
+    - Monthly amortization JE proposals delivered to Controller by Day 1, 7:30am
+    - Zero orphaned prepaid balances at quarter-end
+    - Zero schedules extended past contract end date without explicit approval
+    - Zero auto-classifications of ambiguous invoices
+  metrics:
+    - prepayments_identified_within_sla
+    - amortization_run_on_time
+    - orphaned_balance_count                  # target: 0 at quarter-end
+    - schedule_drift_dollar_amount
+
+thresholds:
+  prepayment_dollar_threshold: 5000          # surface invoices >$5K that look like prepays
+  schedule_max_months: 36                     # flag schedules longer than this for technical-accounting review
+  reconciliation_gap_dollar_threshold: 1000
+  reconciliation_gap_pct_threshold: 1
+  expiring_schedule_warning_days: 30
+  no_change_warning_months: 3                 # active schedule with no GL movement in 3+ months
+
+outputs:
+  active_schedules_path: "prepayments/active-schedules.yaml"
+  proposed_schedules_dir: "prepayments/proposed/"
+  amortization_input_path: "prepayments/{year}-{month:02d}/amortization-input.md"
+  reconciliation_dir: "prepayments/{year}-{month:02d}/reconciliation/"
+  schedule_review_dir: "prepayments/reviews/"
+
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 6000
+  temperature: 0.1                            # Strictly numerical, schedule-driven
+
+notifications:
+  slack:
+    channels:
+      summary: "#prepay-ops"                  # or "#finance-ops" if team is small
+      alerts: "#finance-alerts"
+  on_prepayment_identified: summary
+  on_schedule_proposed: summary
+  on_amortization_ready: summary
+  on_reconciliation_gap: summary
+  on_orphaned_balance: alerts
+  on_expired_schedule_uncleaned: alerts
+  on_schedule_extension_attempted: alerts
+
+logging:
+  level: info
+  retain_days: 2555                           # 7-year retention — prepay schedules referenced in audits years later
+  log_dir: "~/finance-logs/prepay-manager/"
+
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/prepay-manager-audit-log.jsonl"
+
+# Prepay Manager feeds Controller (monthly amortization JEs) and reads from
+# AP Watcher (invoice stream for identification). It is the only agent that
+# maintains the prepaid schedule registry; all other agents read from it.
+agent_dependencies:
+  - ap-watcher                                # consumes staged invoices for identification
+# Downstream:
+# - Controller consumes amortization-input.md each month

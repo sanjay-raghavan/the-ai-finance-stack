@@ -1,0 +1,144 @@
+# Crypto Reconciler — config.yaml
+
+name: crypto-reconciler
+handle: "@crypto-reconciler"
+version: 0.1.0
+description: Reconciles crypto wallet balances and on-chain activity against accounting subledger and GL. First agent in the crypto pack — industry-specialty extension to the core Stack.
+tagline: "Your crypto-fluent accountant — on-chain truth as source of truth, multi-chain reconciliation, gas/fee separation, cost-basis sanity checks."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/crypto-reconciler
+category: Finance & Accounting
+pack: crypto                    # First non-core pack
+tags: [crypto, reconciliation, multi-chain, on-chain, defi, custody]
+
+toolkit: [Read, Write, Glob, Grep, Bash]
+
+mcps:
+  required:
+    - one_of: [bitwave, tres-finance]    # crypto accounting subledger
+    - one_of: [quickbooks, xero, netsuite]    # GL — for crypto-related accounts
+    - slack
+  optional:
+    - tres-finance               # DeFi analytics if not used as primary subledger
+    - catalyx-wallet             # institutional custody
+    - enterprise-wallet          # institutional custody alt
+    - lightspark-sdk             # Lightning Network operations
+    - lightspark-grid            # Lightning Network routing
+    - gcp-blockchain             # on-chain queries via BigQuery
+    - notion-finance             # for wallet labels, asset config
+
+finance_plugin_skills:
+  required: []
+  optional:
+    - finance:reconciliation         # core reconciliation methodology
+    - finance:journal-entry-prep     # close artifact hand-off
+
+global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
+
+skills:
+  - wallet-recon
+  - gas-and-fees-tracking
+
+schedule:
+  daily:
+    wallet_reconciliation:
+      cron: "0 8 * * *"          # daily 8am ET, including weekends (crypto doesn't sleep)
+      timezone: America/New_York
+  monthly:
+    crypto_close:
+      cron: "0 7 1 * *"          # Day 1 of new period, 7am — earlier than Controller's 9am
+      timezone: America/New_York
+    cost_basis_sanity:
+      cron: "0 9 2 * *"          # Day 2 of close, 9am
+      timezone: America/New_York
+  continuous:
+    unexplained_movement_watcher:
+      trigger: chain_event
+      sla_hours: 24
+
+goals:
+  primary:
+    - Daily wallet reconciliation completed by 8:30am ET
+    - 100% of on-chain transactions classified in subledger within 24 hours
+    - Crypto close artifact delivered to Controller by Day 1, 7:30am
+    - Zero unexplained movements remaining open at period close
+    - Zero wallet writes / signing operations (read-only enforcement)
+  metrics:
+    - daily_recon_on_time
+    - unexplained_movements_open_count       # target: 0 at period close
+    - cost_basis_discrepancies_caught
+    - write_attempt_violations               # target: 0, every violation is a critical bug
+
+thresholds:
+  balance_recon_dollar_threshold: 1000
+  balance_recon_pct_threshold: 0.5
+  unexplained_movement_sla_hours: 24
+  cost_basis_discrepancy_dollar_threshold: 1000
+  cost_basis_discrepancy_pct_threshold: 5
+  large_movement_pct_of_holdings: 10
+  new_asset_detection: halt                  # halt reconciliation if a new asset appears
+
+assets_configured:
+  # Maintained in ~/finance-data/crypto/assets.yaml — listed here are defaults.
+  # Each asset has: ticker, decimals, price oracle, accounting treatment
+  source: "~/finance-data/crypto/assets.yaml"
+
+wallets_configured:
+  # Maintained in ~/finance-data/crypto/wallets.yaml — Each wallet has:
+  # - label (human-readable; used in summaries)
+  # - address (full; restricted to local files only)
+  # - chain
+  # - custody type (hot / cold / exchange / multi-sig)
+  # - business purpose
+  source: "~/finance-data/crypto/wallets.yaml"
+
+cost_basis_methodology:
+  default: fifo                              # FIFO / LIFO / specific-ID
+  configurable_per_asset: true
+
+outputs:
+  daily_dir: "crypto/{year}-{month:02d}/daily/"
+  close_artifact_path: "crypto/{year}-{month:02d}/close-artifact.md"
+  cost_basis_path: "crypto/{year}-{month:02d}/cost-basis-sanity.md"
+  audit_dir: "crypto/audit/"
+
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 8000
+  temperature: 0.1                           # Highly numerical, validation-heavy
+
+notifications:
+  slack:
+    channels:
+      summary: "#crypto-ops"
+      alerts: "#finance-alerts"
+  on_daily_recon_summary: summary
+  on_unexplained_movement: alerts
+  on_cost_basis_discrepancy: alerts
+  on_new_asset_detected: alerts
+  on_multi_sig_pending: summary
+  on_smart_contract_interaction_unclassified: alerts
+  on_write_attempt_violation: alerts
+
+logging:
+  level: info
+  retain_days: 2555                          # 7-year retention — crypto tax + audit requirements
+  log_dir: "~/finance-logs/crypto-reconciler/"
+
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/crypto-reconciler-audit-log.jsonl"
+  log_every_balance_query: true              # every wallet read logged for forensic reconstruction
+  log_every_chain_event: true
+
+privacy:
+  # Wallet addresses are sensitive (can reveal holdings, transaction patterns).
+  # Full addresses go in local files only; Slack summaries use labels.
+  full_address_in_slack: false
+  full_address_in_local_files: true
+
+# Crypto Reconciler feeds Controller (crypto close artifact, JE inputs) and Treasury
+# (crypto holdings as context for total cash position, kept separate from fiat).
+agent_dependencies: []
