@@ -1,0 +1,68 @@
+# GitHub Pages configuration for The AI Finance Stack
+# Using the "Just the Docs" Jekyll theme — clean docs site with sidebar nav + search.
+
+title: The AI Finance Stack
+description: A free, open-source collection of Finance AI agents that run on your own machine.
+remote_theme: just-the-docs/just-the-docs
+
+# The URL where the docs site lives.
+url: "https://sanjay-raghavan.github.io"
+
+# Base path: the repo name appended to the GitHub Pages URL.
+baseurl: "/the-ai-finance-stack"
+
+# Search
+search_enabled: true
+search:
+  heading_level: 3
+  previews: 3
+  preview_words_before: 5
+  preview_words_after: 10
+  tokenizer_separator: /[\s/]+/
+  rel_url: true
+  button: false
+
+# Aux links (top-right of the docs site)
+aux_links:
+  "GitHub":
+    - "//github.com/sanjay-raghavan/the-ai-finance-stack"
+  "Substack":
+    - "//sanjayraghavan.substack.com"
+
+aux_links_new_tab: true
+
+# Footer
+footer_content: "The AI Finance Stack &middot; MIT License &middot; built and maintained by <a href=\"https://sanjayraghavan.substack.com\">Sanjay Raghavan</a>"
+
+# Color scheme
+color_scheme: light
+
+# Heading anchors (lets readers link to specific sections)
+heading_anchors: true
+
+# Plugins (GitHub Pages allows these specifically)
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+
+# SEO
+lang: en
+twitter:
+  username: aixcfo
+  card: summary
+logo: ""
+
+# Files / folders to exclude from the docs site (these stay in the repo but aren't rendered as pages)
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .github
+  - .git
+  - "*.yaml"       # agent config files — not user-facing docs
+  - "agents/**/config.yaml"
+  - "agents/**/CLAUDE.md"     # internal-only; can be included later via Pages routing if desired
+
+# Custom navigation order — Just the Docs picks this up from frontmatter, but you can
+# also enforce it here. For v0.1, the markdown order is good enough.

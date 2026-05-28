@@ -1,0 +1,101 @@
+# Release Agent Bundle
+#
+# Triggered when you push a tag like `controller-v0.1.0` or `fpa-analyst-v0.2.0`.
+# Builds a ZIP of the agent's package folder and attaches it to a GitHub Release.
+# Users download the ZIP from the Releases page (or via the docs site).
+
+name: Release Agent Bundle
+
+on:
+  push:
+    tags:
+      - "*-v*.*.*"   # matches e.g. controller-v0.1.0, fpa-analyst-v0.2.0
+
+permissions:
+  contents: write     # required for creating releases
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Parse tag
+        id: parse
+        run: |
+          # Tag format: <agent-name>-v<major>.<minor>.<patch>
+          TAG="${GITHUB_REF#refs/tags/}"
+          AGENT_NAME="${TAG%-v*}"
+          VERSION="${TAG##*-v}"
+          echo "agent_name=${AGENT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Parsed: agent=${AGENT_NAME} version=${VERSION}"
+
+      - name: Validate agent folder exists
+        run: |
+          if [ ! -d "agents/${{ steps.parse.outputs.agent_name }}" ]; then
+            echo "Error: agents/${{ steps.parse.outputs.agent_name }} does not exist"
+            exit 1
+          fi
+
+      - name: Build agent bundle ZIP
+        run: |
+          BUNDLE_NAME="${{ steps.parse.outputs.agent_name }}-v${{ steps.parse.outputs.version }}.zip"
+          cd agents
+          zip -r "../${BUNDLE_NAME}" "${{ steps.parse.outputs.agent_name }}/"
+          cd ..
+          ls -la "${BUNDLE_NAME}"
+          echo "BUNDLE_NAME=${BUNDLE_NAME}" >> "$GITHUB_ENV"
+
+      - name: Build install JSON snippet
+        run: |
+          cat > install-snippet.json <<EOF
+          {
+            "mcpServers": {
+              "the-ai-finance-stack": {
+                "url": "https://theaifinancestack.com/mcp/registry"
+              }
+            }
+          }
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.parse.outputs.tag }}
+          name: "${{ steps.parse.outputs.agent_name }} v${{ steps.parse.outputs.version }}"
+          body: |
+            ## ${{ steps.parse.outputs.agent_name }} v${{ steps.parse.outputs.version }}
+
+            Agent package for **${{ steps.parse.outputs.agent_name }}** — part of [The AI Finance Stack](https://github.com/sanjay-raghavan/the-ai-finance-stack).
+
+            ### Install
+
+            **Option A — Download and extract manually:**
+            1. Download `${{ env.BUNDLE_NAME }}` below
+            2. Extract into `~/the-ai-finance-stack/agents/${{ steps.parse.outputs.agent_name }}/`
+            3. Follow the agent's `README.md` for MCP setup and customization
+
+            **Option B — Once the MCP registry is live (Phase 2):**
+            ```json
+            {
+              "mcpServers": {
+                "the-ai-finance-stack": {
+                  "url": "https://theaifinancestack.com/mcp/registry"
+                }
+              }
+            }
+            ```
+            Then ask Claude: *"Install ${{ steps.parse.outputs.agent_name }} from The AI Finance Stack."*
+
+            ### Changes in this release
+            See the diff at https://github.com/${{ github.repository }}/commits/${{ steps.parse.outputs.tag }}
+
+          files: |
+            ${{ env.BUNDLE_NAME }}
+            install-snippet.json
+          draft: false
+          prerelease: ${{ contains(steps.parse.outputs.version, '-') }}    # 0.1.0-rc.1 = prerelease

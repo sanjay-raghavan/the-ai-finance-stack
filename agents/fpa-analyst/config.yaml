@@ -1,0 +1,142 @@
+# FP&A Analyst — config.yaml
+
+# ─── Identity ──────────────────────────────────────────────────
+name: fpa-analyst
+handle: "@fpa-analyst"
+version: 0.1.0
+description: Owns variance analysis, forecast maintenance, and the financial-decision artifacts the CFO uses with the board.
+tagline: "Your senior FP&A lead — runs variance with driver decomposition, refreshes the rolling forecast, keeps scenarios live, answers what-ifs from the model."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://theaifinancestack.com/agents/fpa-analyst
+category: Finance & Accounting
+tags:
+  - fpa
+  - variance-analysis
+  - forecasting
+  - scenarios
+  - what-if
+
+# ─── Base toolkit (Claude Code defaults) ────────────────────────
+toolkit:
+  - Read
+  - Write
+  - Glob
+  - Grep
+  - Bash
+
+# ─── Required MCPs ──────────────────────────────────────────────
+mcps:
+  required:
+    - one_of: [quickbooks, xero, netsuite]
+    - slack
+  optional:
+    - googlesheets       # to read/write the operating model
+    - metabase           # BI / data warehouse
+    - cubedev            # alternative BI
+    - notion-finance     # forecast change-log
+
+# ─── Required Finance Plugin skills ─────────────────────────────
+finance_plugin_skills:
+  required:
+    - finance:variance-analysis
+    - finance:financial-statements
+
+# ─── Inherited "Global Default" skills ──────────────────────────
+global_skills:
+  - sop-pdf
+  - sop-pptx
+  - sop-xlsx
+  - sop-docx
+
+# ─── Agent-specific skills ──────────────────────────────────────
+skills:
+  - variance-decomposition
+  - forecast-refresh
+  - scenario-flex
+  - kpi-snapshot
+  - what-if-analysis
+
+# ─── Schedule ───────────────────────────────────────────────────
+schedule:
+  monthly:
+    variance_package:
+      cron: "0 9 4 * *"        # Day 4 of new period, 9am
+      depends_on: controller    # only runs after Controller's close packet exists
+    investor_update_input:
+      cron: "0 11 5 * *"       # Day 5 of new period, 11am
+      depends_on: variance_package
+  quarterly:
+    scenario_refresh:
+      cron: "0 9 * 1,4,7,10 1" # First Monday of new quarter
+    kpi_snapshot:
+      cron: "0 11 * 1,4,7,10 *" # First weekday of new quarter
+  on_demand:
+    # What-if requests are triggered by Slack DMs to the agent.
+    what_if_listener: enabled
+  timezone: America/New_York
+  business_days_only: true
+
+# ─── Goals (success metrics) ────────────────────────────────────
+goals:
+  primary:
+    - Publish variance package within 48 hours of Controller's close-packet hand-off
+    - Refresh rolling forecast every month with actuals from the closed period
+    - Re-flex scenarios quarterly; sooner if a driver moves materially
+    - Surface 100% of material variances; everything below threshold rolls to summary
+    - Never publish a forecast without a confidence range
+  metrics:
+    - variance_package_delivery_hours_after_close
+    - material_variances_count
+    - hypothesis_layer_items_count    # narratives without supporting data — minimize
+    - what_if_requests_handled
+    - forecast_revision_pct
+
+# ─── Materiality thresholds ─────────────────────────────────────
+thresholds:
+  variance_dollar_threshold: 25000
+  variance_percent_threshold: 5
+  driver_move_percent_threshold: 10
+  consecutive_periods_for_structural_flag: 3
+  forecast_revision_pct_for_audit_trail: 5
+  bear_case_runway_critical_months: 6
+
+# ─── Output paths ───────────────────────────────────────────────
+outputs:
+  variance_base_dir: "variance/{year}-{month:02d}/"
+  forecast_base_dir: "forecasts/{year}-Q{quarter}/"
+  scenario_base_dir: "scenarios/{year}-Q{quarter}/"
+  kpi_base_dir: "kpis/{year}-Q{quarter}/"
+  whatif_base_dir: "whatifs/"
+  ir_input_path: "ir/{year}-{month:02d}/fpa-input.md"
+
+# ─── Model configuration ────────────────────────────────────────
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 10000
+  temperature: 0.2
+
+# ─── Notifications ──────────────────────────────────────────────
+notifications:
+  slack:
+    channels:
+      summary: "#fpa-ops"
+      alerts: "#finance-alerts"
+      whatif_dm: true        # what-if responses go back to the requesting user
+  on_pass_complete: summary
+  on_material_variance: summary
+  on_structural_variance: alerts
+  on_bear_case_critical: alerts
+  on_error: alerts
+
+# ─── Logging ────────────────────────────────────────────────────
+logging:
+  level: info
+  retain_days: 365
+  log_dir: "~/finance-logs/fpa-analyst/"
+
+# ─── Dependencies ───────────────────────────────────────────────
+# This agent reads from Controller's outputs each month.
+agent_dependencies:
+  - controller    # variance_package pass cannot start until Controller has produced status-report.md

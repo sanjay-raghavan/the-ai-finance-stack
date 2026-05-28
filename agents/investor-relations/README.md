@@ -1,0 +1,55 @@
+# Investor Relations — `@ir`
+
+> Your IR partner — drafts the monthly investor update, prepares the board reading material, monitors KPI movements that matter to investors, and tracks the cap-table-adjacent context the CFO needs at hand.
+
+**Category:** Finance & Accounting · **Function:** Investor Relations · **Status:** 🟡 Skeleton (v0.1 target) · **License:** MIT
+
+---
+
+## What Investor Relations does
+
+- **Drafts the monthly investor update** — pulls the period's KPIs, variance narrative (from FP&A Analyst), and qualitative notes; produces a draft in the investor's preferred format (Substack newsletter, email, or board doc)
+- **Prepares the board reading material** — quarterly board pack pre-read; KPI scorecard, period highlights, asks, risks
+- **Monitors KPI movements** — flags material changes in metrics investors track (revenue growth, burn, runway, net retention, take rate for PSPs)
+- **Maintains the investor list** — current investors, their contact preferences, last update sent, anything custom they've asked for
+- **Tracks fundraise context** — if a round is active, monitors term sheet artifacts, comparables, recent transactions in the space
+- **Prepares one-on-one investor brief** — for any upcoming investor meeting, a short pre-read covering "what's changed since they last heard from us"
+
+---
+
+## What Investor Relations will not do
+
+- Send communications to investors directly — every draft surfaces for human review
+- Modify cap-table records — read-only
+- Make any claims that aren't supported by the underlying data — explicitly flags areas of uncertainty
+- Speculate on valuation
+
+---
+
+## Required setup
+
+- **MCPs:** accounting MCP + `slack`; optionally `notion-finance` (for the investor list / investor pack), `gmail` (drafts the update for review)
+- **Slack channels:** `#ir-ops`, `#finance-alerts`
+- **Skills (planned):** `investor-update-draft`, `board-prereader`, `kpi-watch`, `investor-meeting-brief`, `fundraise-comp-set`
+
+---
+
+## Schedule
+
+- **Monthly investor update draft:** Day 5 of close
+- **KPI movement monitor:** daily, summary every Friday
+- **Quarterly board pre-read:** drafted 14 days before scheduled board meeting
+- **Investor meeting briefs:** on-demand (triggered by calendar event)
+
+---
+
+## Curriculum lessons that build this agent
+
+- Lesson on automating monthly management packs (the IR write-up extends that)
+- Future Module 8 lesson on building the AI-Ready Finance Team — IR as a representative agent
+
+---
+
+## Status notes
+
+v0.1 skeleton. Strong candidate for "second agent the reader cares about" after Controller — most CFOs feel the investor-update grind monthly.

@@ -1,0 +1,148 @@
+# Controller — config.yaml
+
+# ─── Identity ──────────────────────────────────────────────────
+name: controller
+handle: "@controller"
+version: 0.1.0
+description: Owns the month-end close, the books, and the integrity of the accounting record.
+tagline: "Your senior controller — runs the close, prepares accruals, owns reconciliations, surfaces only what needs review."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://theaifinancestack.com/agents/controller
+category: Finance & Accounting
+tags:
+  - controller
+  - close-management
+  - accounting
+  - month-end
+  - flagship
+
+# ─── Base toolkit (Claude Code defaults) ────────────────────────
+toolkit:
+  - Read
+  - Write
+  - Glob
+  - Grep
+  - Bash    # for git commits to the close folder
+
+# ─── Required MCPs ──────────────────────────────────────────────
+# Agent will not start if any "required" MCP is missing.
+mcps:
+  required:
+    - one_of: [quickbooks, xero, netsuite]   # at least one accounting system
+    - slack
+  optional:
+    - mercury           # banking
+    - modern-treasury   # banking, more complex setups
+    - plaid             # bank-data aggregation
+    - google-drive      # archive the close packet
+    - notion-finance    # post summary to the Finance wiki
+
+# ─── Required Finance Plugin skills ─────────────────────────────
+finance_plugin_skills:
+  required:
+    - finance:close-management
+    - finance:journal-entry
+    - finance:journal-entry-prep
+    - finance:reconciliation
+  optional:
+    - finance:financial-statements
+
+# ─── Inherited "Global Default" skills ──────────────────────────
+# All agents in The AI Finance Stack inherit these.
+global_skills:
+  - sop-pdf
+  - sop-pptx
+  - sop-xlsx
+  - sop-docx
+
+# ─── Agent-specific skills ──────────────────────────────────────
+# Defined in ./skills/. Invokable by the agent when relevant.
+skills:
+  - close-calendar
+  - accrual-entries
+  - reconciliations
+  - variance-narrative
+
+# ─── Schedule ───────────────────────────────────────────────────
+schedule:
+  # Default: trigger close work on the last business day of each month.
+  # The runtime adjusts for weekends and US holidays automatically.
+  cron: "0 17 L * *"           # 5pm local on the last day of the month
+  timezone: America/New_York
+  business_days_only: true
+  passes:
+    pass_1_calendar:
+      cron: "0 9 1 * *"        # Day 1 of new period, 9am
+    pass_2_accruals:
+      cron: "0 11 1 * *"       # Day 1 of new period, 11am
+    pass_3_reconciliations:
+      cron: "0 9 2 * *"        # Day 2 of new period, 9am
+    pass_4_status_report:
+      cron: "0 9 3 * *"        # Day 3 of new period, 9am
+    pass_5_variance_narrative:
+      cron: "0 14 3 * *"       # Day 3 of new period, 2pm
+
+# ─── Goals (success metrics) ────────────────────────────────────
+goals:
+  primary:
+    - Close the books within 3 business days of period-end
+    - Prepare all standard accrual entries by end of Day 1
+    - Complete all standard reconciliations by end of Day 2
+    - Surface 100% of items requiring human review; nothing booked silently
+    - Generate the variance narrative draft by Day 3 afternoon
+  metrics:
+    - close_duration_business_days
+    - accruals_prepared_count
+    - reconciliations_completed_count
+    - items_flagged_for_review_count
+    - human_overrides_required_count
+
+# ─── Escalation thresholds ──────────────────────────────────────
+thresholds:
+  accrual_period_over_period_deviation_pct: 25
+  reconciling_item_dollar_threshold: 50000
+  reconciling_item_aging_days_threshold: 60
+  bank_rec_difference_dollar_threshold: 1000
+  balance_sheet_mom_change_pct: 5
+
+# ─── Output paths ───────────────────────────────────────────────
+# Relative to the runtime's data directory (~/finance-data/).
+outputs:
+  base_dir: "closes/{year}-{month:02d}/"
+  files:
+    pass_1: close-calendar.md
+    pass_2: accruals-proposed.md
+    pass_3: reconciliations.md
+    pass_4: status-report.md
+    pass_5: variance-narrative-draft.md
+
+# ─── Model configuration ────────────────────────────────────────
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 8000
+  temperature: 0.2    # Consistency over creativity for Finance work
+
+# ─── Notifications ──────────────────────────────────────────────
+notifications:
+  slack:
+    channels:
+      summary: "#finance-ops"
+      alerts: "#finance-alerts"
+  on_pass_complete: summary
+  on_flagged_items: summary
+  on_error: alerts
+  on_escalation: alerts
+
+# ─── Logging ────────────────────────────────────────────────────
+logging:
+  level: info
+  retain_days: 365      # Keep close logs for a full year for audit support
+  log_dir: "~/finance-logs/controller/"
+
+# ─── Audit ──────────────────────────────────────────────────────
+audit:
+  # Append every action to an immutable audit log for SOX-readiness.
+  enable: true
+  log_path: "~/finance-data/audit/controller-audit-log.jsonl"

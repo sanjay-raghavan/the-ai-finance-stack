@@ -1,0 +1,61 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Node (in case the registry server uses Node)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Jekyll / GitHub Pages local builds
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+vendor/
+Gemfile.lock
+
+# Secrets — NEVER commit these
+.env
+*.env
+secrets.env
+*.secret
+*.pem
+*.key
+.finance-stack/
+config.local.yaml
+
+# Local user data (the runtime writes here; never push to public repo)
+finance-data/
+finance-logs/
+~/finance-data/
+~/finance-logs/
+
+# Misc
+*.log
+.DS_Store?
+ehthumbs.db
+Thumbs.db
