@@ -57,4 +57,8 @@ Payroll data is sensitive. Restrict the `#payroll-ops` channel membership to the
 
 ## Status notes
 
-v0.1 skeleton. Build behind Controller, AP Watcher, and FP&A Analyst — those are the higher-leverage starter agents.
+**v0.1 — fully authored.** Ships with two skills (`payroll-prereview`, `headcount-cost-tracking`). Future v0.2 candidates: dedicated `bonus-accrual-projection` skill (currently inline), `sbc-monitor` (currently inline), `comp-outlier-flag` (currently inline in pre-run review).
+
+Payroll Reviewer is the **most privacy-sensitive agent in the Stack.** The `#payroll-ops` Slack channel should have the smallest possible membership; the agent's queries are restricted to scoped fields only (no SSN, no banking, no home address, no dependents, no medical); audit log retention is 7 years (vs. 2 for other agents). Operationalize these controls — they're not theoretical.
+
+Payroll Reviewer feeds Controller (payroll-related accruals), FP&A (headcount cost roster for variance work), Treasury (payroll schedule for 13-week projection), and IR (SBC / headcount commentary for monthly update).

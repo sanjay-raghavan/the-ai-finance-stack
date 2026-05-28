@@ -1,0 +1,119 @@
+# Revenue Ops — config.yaml
+
+name: revenue-ops
+handle: "@revenue-ops"
+version: 0.1.0
+description: Owns sales-to-cash hand-off integrity. Commissions, ARR tracking, pipeline hygiene, deal-desk flagging, renewal watch.
+tagline: "Your RevOps lead — commissions, ARR reconciliation, pipeline hygiene, deal-desk flagging."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/revenue-ops
+category: Finance & Accounting
+pack: core
+tags: [revops, commissions, arr, pipeline, deal-desk]
+
+toolkit: [Read, Write, Glob, Grep, Bash]
+
+mcps:
+  required:
+    - hubspot          # CRM (Salesforce when added)
+    - slack
+  optional:
+    - one_of: [quickbooks, xero, netsuite]   # accounting
+    - one_of: [stripe, chargebee, paypal, square]  # billing
+    - notion-finance   # for comp plans and deal-desk policies
+
+finance_plugin_skills:
+  required: []
+  optional:
+    - finance:financial-statements   # for scorecard formatting
+
+global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
+
+skills:
+  - commission-run
+  - arr-reconciliation
+
+schedule:
+  continuous:
+    pipeline_hygiene:
+      cron: "0 */4 8-18 * * 1-5"   # every 4 hours during business hours
+      timezone: America/New_York
+    deal_desk_flag:
+      trigger: hubspot_event       # triggered on deal stage transitions
+  weekly:
+    arr_quota_scorecard:
+      cron: "0 9 * * 1"            # Monday 9am
+      timezone: America/New_York
+    renewal_watch:
+      cron: "0 9 * * 2"            # Tuesday 9am
+      timezone: America/New_York
+  monthly:
+    commission_run:
+      cron: "0 9 5 * *"            # Day 5 of new period
+      timezone: America/New_York
+    arr_reconciliation:
+      cron: "0 10 5 * *"           # Day 5 at 10am
+      timezone: America/New_York
+
+goals:
+  primary:
+    - Monthly commission run delivered by Day 5 with zero auto-approved edge cases
+    - Weekly ARR / quota scorecard delivered Monday 9:30am
+    - ARR reconciliation gap surfaced for every customer mismatch >$1K
+    - Daily pipeline hygiene flags published; zero CRM modifications by agent
+    - 100% of non-standard deals surfaced to deal-desk before close
+  metrics:
+    - commission_run_on_time
+    - commission_edge_cases_human_reviewed       # target: all edge cases
+    - arr_gaps_surfaced
+    - pipeline_hygiene_flags_count
+    - deal_desk_flags_count
+
+thresholds:
+  discount_above_standard_pct: 25
+  arr_gap_dollar_threshold: 1000
+  arr_gap_pct_threshold: 5
+  pipeline_coverage_minimum_x_quota: 2
+  renewal_at_risk_arr_threshold: 50000
+  stale_deal_days_at_stage: 60
+  multi_year_prepay_flag: true
+
+outputs:
+  scorecards_dir: "revops/scorecards/"
+  hygiene_dir: "revops/hygiene/"
+  commission_runs_dir: "revops/commission-runs/{year}-{month:02d}/"
+  arr_recon_dir: "revops/arr-recon/{year}-{month:02d}/"
+  renewal_watch_dir: "revops/renewal-watch/"
+  comp_plans_path: "revops/comp-plans/{year}.yaml"
+  deal_desk_policies_path: "revops/deal-desk-policies.yaml"
+
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 7000
+  temperature: 0.2
+
+notifications:
+  slack:
+    channels:
+      summary: "#revops-ops"
+      alerts: "#finance-alerts"
+  on_pipeline_hygiene_summary: summary
+  on_commission_run_ready: summary
+  on_arr_gap: summary
+  on_deal_desk_flag: summary
+  on_multi_year_prepay: alerts
+  on_signed_contract_missing: alerts
+
+logging:
+  level: info
+  retain_days: 730
+  log_dir: "~/finance-logs/revenue-ops/"
+
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/revenue-ops-audit-log.jsonl"
+
+# Revenue Ops feeds FP&A (ARR roll-up), AR Follow-Up (deal hand-off integrity),
+# Payroll Reviewer (commission cost), IR (KPI scorecard inputs).

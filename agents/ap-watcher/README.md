@@ -52,4 +52,6 @@
 
 ## Status notes
 
-v0.1 skeleton only. `CLAUDE.md`, `config.yaml`, and skills to be authored next. See the Controller agent for the full reference shape.
+**v0.1 — fully authored.** Ships with two skills (`invoice-validation`, `payment-run`). Future v0.2 candidates: `vendor-data-hygiene` (W-9/W-8 tracking automation), `early-pay-optimizer` (smarter discount-capture math), and `vendor-concentration-watch` (flag growing reliance on single vendors).
+
+AP Watcher feeds Controller (accruals at month-end) and Treasury (cash-impact projections via payment-run prep). Consults Treasury's 13-week projection before any payment run is finalized.

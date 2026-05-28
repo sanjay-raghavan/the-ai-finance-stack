@@ -1,0 +1,109 @@
+# AP Watcher — config.yaml
+
+name: ap-watcher
+handle: "@ap-watcher"
+version: 0.1.0
+description: Handles incoming vendor invoices end-to-end except for payment itself. Validates, codes, prepares weekly payment runs, tracks aging.
+tagline: "Your AP specialist — invoice validation, coding, duplicate detection, payment-run prep, aging tracking. Never pays."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/ap-watcher
+category: Finance & Accounting
+pack: core
+tags: [ap, accounts-payable, invoice-validation, payment-run]
+
+toolkit: [Read, Write, Glob, Grep, Bash]
+
+mcps:
+  required:
+    - one_of: [quickbooks, xero, netsuite]
+    - slack
+  optional:
+    - gmail            # AP inbox
+    - billcom          # purpose-built AP system
+    - ramp             # corporate card + bill pay
+    - expensify        # expense reports
+    - notion-finance   # contract storage
+
+finance_plugin_skills:
+  required: []
+  optional:
+    - finance:journal-entry-prep   # used at month-end for accrual hand-off
+
+global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
+
+skills:
+  - invoice-validation
+  - payment-run
+
+schedule:
+  continuous:
+    inbox_sweep:
+      cron: "*/30 8-18 * * 1-5"   # every 30 min during business hours
+      timezone: America/New_York
+  weekly:
+    payment_run_prep:
+      cron: "0 9 * * 4"           # Thursday 9am ET
+      timezone: America/New_York
+    aging_report:
+      cron: "0 9 * * 1"           # Monday 9am ET
+      timezone: America/New_York
+  monthly:
+    accrual_handoff:
+      cron: "0 8 1 * *"           # Day 1 of new period, 8am — feeds Controller
+      timezone: America/New_York
+
+goals:
+  primary:
+    - 100% of invoices validated within 30 minutes of receipt
+    - Zero duplicate payments
+    - Weekly payment run delivered Thursday morning with cash-impact check passed
+    - AP accrual artifact delivered to Controller by Day 1, 8am
+  metrics:
+    - invoice_validation_latency_minutes
+    - duplicate_payments_count           # target: 0
+    - payment_run_on_time
+    - aging_buckets
+
+thresholds:
+  large_invoice_dollar_threshold: 10000
+  unusual_amount_multiplier: 2          # flag if >2× trailing-6-month average for vendor
+  duplicate_check_date_window_days: 5
+  duplicate_check_amount_tolerance_dollars: 5
+  vendor_w9_required_annual_threshold: 600   # IRS 1099 threshold
+  coding_confidence_threshold: 0.8
+
+outputs:
+  staged_invoices_dir: "ap/{year}-{month:02d}/staged/"
+  payment_runs_dir: "ap/{year}-{month:02d}/runs/"
+  aging_reports_dir: "ap/{year}-{month:02d}/aging/"
+  accrual_input_path: "ap/{year}-{month:02d}/accrual-input.md"
+
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 6000
+  temperature: 0.1   # Numerical, validation-heavy work; minimize creativity
+
+notifications:
+  slack:
+    channels:
+      summary: "#ap-ops"
+      alerts: "#finance-alerts"
+  on_invoice_flagged: summary
+  on_duplicate_suspected: alerts
+  on_payment_run_ready: summary
+  on_cash_impact_breach: alerts
+
+logging:
+  level: info
+  retain_days: 730    # 2-year audit retention
+  log_dir: "~/finance-logs/ap-watcher/"
+
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/ap-watcher-audit-log.jsonl"
+
+agent_dependencies:
+  - treasury    # consults Treasury's 13-week projection for cash-impact checks
+# AP Watcher's outputs feed Controller (accruals) and Treasury (cash projection inputs)

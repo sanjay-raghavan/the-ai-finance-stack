@@ -53,4 +53,6 @@
 
 ## Status notes
 
-v0.1 skeleton. Most useful for companies with >$10M ARR — pre that scale, the commission-and-ARR overhead is small enough that this agent is overkill.
+**v0.1 — fully authored.** Ships with two skills (`commission-run`, `arr-reconciliation`). Future v0.2 candidates: `quota-scorecard` (currently inline), `pipeline-hygiene` (currently inline in CLAUDE.md), `deal-desk-flag` (currently inline), and `renewal-watch` (currently inline). Pulling each into a dedicated skill file lets other agents invoke them independently.
+
+Most useful for companies with >$10M ARR — pre that scale, the commission-and-ARR overhead is small enough that this agent is overkill. Revenue Ops feeds FP&A (ARR roll-up), AR Follow-Up (deal hand-off integrity), Payroll Reviewer (commission cost), and IR (KPI scorecard).

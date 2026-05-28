@@ -18,10 +18,10 @@ Eight agents, one per Finance function. Each one represents a role on the Financ
 | **FP&A Analyst** | `@fpa-analyst` | FP&A | Variance vs. budget with driver decomposition, forecast refresh, scenario maintenance | 🟢 v0.1 — fully authored |
 | **Treasury** | `@treasury` | Treasury | Cash position, runway, banking, merchant-funds float (PSP-aware) | 🟢 v0.1 — fully authored |
 | **Investor Relations** | `@ir` | Investor Relations | Monthly investor update drafts, board reading material, KPI movement narrative | 🟢 v0.1 — fully authored |
-| **AP Watcher** | `@ap-watcher` | Accounts Payable | Vendor contracts, invoice validation, duplicate detection, payment-run prep | 🟡 Skeleton |
-| **AR Follow-Up** | `@ar-follow-up` | Accounts Receivable | Aging-based collections drafts, DSO tracking, deal-line-item validation | 🟡 Skeleton |
-| **Revenue Ops** | `@revenue-ops` | Revenue Operations | Commission calculations, ARR tracking, deal-desk support, quota attainment | 🟡 Skeleton |
-| **Payroll Reviewer** | `@payroll-reviewer` | Payroll | Monthly payroll variance, headcount cost, comp/equity review | 🟡 Skeleton |
+| **AP Watcher** | `@ap-watcher` | Accounts Payable | Vendor contracts, invoice validation, duplicate detection, payment-run prep | 🟢 v0.1 — fully authored |
+| **AR Follow-Up** | `@ar-follow-up` | Accounts Receivable | Aging-based collections drafts, DSO tracking, deal-line-item validation | 🟢 v0.1 — fully authored |
+| **Revenue Ops** | `@revenue-ops` | Revenue Operations | Commission calculations, ARR tracking, deal-desk support, quota attainment | 🟢 v0.1 — fully authored |
+| **Payroll Reviewer** | `@payroll-reviewer` | Payroll | Monthly payroll variance, headcount cost, comp/equity review | 🟢 v0.1 — fully authored |
 
 **Categories:** Every agent is tagged `Finance & Accounting`. Future stacks may add `Sales & RevOps` or `People & Payroll` as separate categories.
 
@@ -29,21 +29,35 @@ Eight agents, one per Finance function. Each one represents a role on the Financ
 
 ---
 
-## Quick install (Claude Desktop)
+## Quick install
 
-*Coming once the public MCP registry is live. Until then, clone this repo and follow the [SETUP_DEDICATED_LAPTOP.md](./SETUP_DEDICATED_LAPTOP.md) guide.*
+The public MCP registry server is on the v0.2 roadmap (see [Project Status](#project-status) below). Until then, the install path is:
+
+**Clone the repo and run the Controller (or any other fully-authored agent) locally:**
+
+```bash
+git clone https://github.com/sanjay-raghavan/the-ai-finance-stack.git
+cd the-ai-finance-stack
+```
+
+Then follow either:
+
+- **[QUICK_START.md](./QUICK_START.md)** — try one agent interactively in Claude Desktop (~30 minutes, no dedicated machine needed)
+- **[SETUP_DEDICATED_LAPTOP.md](./SETUP_DEDICATED_LAPTOP.md)** — full setup of a Mac as your always-on agent runtime (~90 minutes)
+
+**Future (v0.2) — once the MCP registry server ships, the install becomes a single JSON snippet:**
 
 ```json
 {
   "mcpServers": {
     "the-ai-finance-stack": {
-      "url": "https://theaifinancestack.com/mcp/registry"
+      "url": "https://sanjay-raghavan.github.io/the-ai-finance-stack/mcp/registry"
     }
   }
 }
 ```
 
-Then in Claude: *"Browse The AI Finance Stack and install the Close Orchestrator."*
+(Exact URL will be confirmed when the registry server is built. See [HOSTING_PLAN.md](./HOSTING_PLAN.md) for the architecture.)
 
 ---
 
@@ -61,7 +75,17 @@ Then in Claude: *"Browse The AI Finance Stack and install the Close Orchestrator
 
 ## Project status
 
-This is the early-stage scaffold. v0.1 ships with the Close Orchestrator as a reference implementation so you can see exactly what an agent package looks like. The rest of the army is on the roadmap, building roughly one agent every two weeks alongside the AI-Powered Finance curriculum.
+**v0.1 — all eight core agents fully authored.** Controller, FP&A Analyst, Treasury, Investor Relations, AP Watcher, AR Follow-Up, Revenue Ops, and Payroll Reviewer. Each ships with a `CLAUDE.md` (identity + operating doctrine), `config.yaml` (MCPs, schedules, goals, thresholds), `README.md` (install + usage), and 2–3 reference skills.
+
+**On the v0.2 roadmap:**
+
+- **MCP registry server** — public Cloudflare Workers endpoint so the install path becomes a single JSON snippet (no `git clone` required)
+- **Industry packs** — additional agents organized by industry (e.g., *crypto pack* with `crypto-reconciler` for companies using Tres / Integral / Bitwave; *SaaS pack*; *marketplace pack*)
+- **ERP-specific skill library** — shared skills under `skills/erp/` (e.g., `qbo-je-format`, `netsuite-multi-entity`, `rillet-conventions`) that any core agent invokes when working with a specific accounting system. Core agents stay ERP-agnostic; ERP differences live in the skill layer.
+- **Runtime helpers** — `runtime/run-agent.sh`, `notify.py`, business-day-defer logic for the dedicated laptop setup
+- **Additional core skills per agent** — e.g., `kpi-snapshot` and `what-if-analysis` for FP&A; `merchant-float-separation` as a dedicated skill for Treasury
+
+Building roughly two agents per week alongside the AI-Powered Finance Substack series.
 
 ---
 

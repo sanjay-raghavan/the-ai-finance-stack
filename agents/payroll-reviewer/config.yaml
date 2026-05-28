@@ -1,0 +1,129 @@
+# Payroll Reviewer — config.yaml
+
+name: payroll-reviewer
+handle: "@payroll-reviewer"
+version: 0.1.0
+description: Reviews each payroll run before execution. Tracks fully-loaded headcount cost. Projects bonus accruals. Tracks stock-based compensation.
+tagline: "Your payroll quality check — pre-run review, headcount cost tracking, bonus accrual, SBC. Never runs payroll."
+author: Sanjay Raghavan
+license: MIT
+homepage: https://thefinancestack.com/agents/payroll-reviewer
+category: Finance & Accounting
+pack: core
+tags: [payroll, headcount-cost, sbc, bonus-accrual, privacy-sensitive]
+
+toolkit: [Read, Write, Glob, Grep, Bash]
+
+mcps:
+  required:
+    - gusto                  # payroll system (Rippling, ADP when added)
+    - slack
+  optional:
+    - one_of: [quickbooks, xero, netsuite]
+    - notion-finance         # for equity grants and offer letters
+
+finance_plugin_skills:
+  required: []
+  optional:
+    - finance:journal-entry-prep   # used for SBC accrual hand-off
+
+global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
+
+skills:
+  - payroll-prereview
+  - headcount-cost-tracking
+
+schedule:
+  per_payroll_run:
+    pre_run_review:
+      # Triggered 2 hours before each payroll execution. Schedule driven by company's
+      # payroll cadence — typically bi-weekly or semi-monthly. The runtime reads
+      # `~/finance-data/payroll/schedule.yaml` for upcoming run dates.
+      trigger: scheduled_run_event
+      lead_time_hours: 2
+  weekly:
+    headcount_roster_refresh:
+      cron: "0 9 * * 1"        # Monday 9am
+      timezone: America/New_York
+  monthly:
+    bonus_accrual_projection:
+      cron: "0 9 1 * *"        # Day 1 of close, 9am
+      timezone: America/New_York
+    sbc_tracking:
+      cron: "0 10 2 * *"       # Day 2 of close, 10am
+      timezone: America/New_York
+
+goals:
+  primary:
+    - Zero payroll runs executed with unflagged material variances
+    - Headcount roster refreshed weekly with current fully-loaded cost per FTE
+    - Bonus accrual projection delivered to Controller by Day 1 of close
+    - SBC tracking delivered by Day 2 of close
+    - Zero privacy-posture violations (audit log review)
+  metrics:
+    - pre_run_reviews_with_flags
+    - variances_caught_before_run
+    - sbc_expense_movement
+    - privacy_posture_violations   # target: 0, every violation is a critical bug
+
+thresholds:
+  gross_pay_variance_pct: 5                  # MoM gross-pay change requiring explanation
+  comp_band_outlier_pct: 20                  # outside P25-P75 by >20% → likely data entry error
+  sbc_movement_dollar_threshold: 50000       # surface material SBC moves
+  offer_letter_required_for_new_hire: true
+  separation_agreement_required: true        # per company policy; configurable
+
+privacy:
+  channel: "#payroll-ops"                    # restricted-membership channel
+  audit_log_retention_years: 7               # extra-long retention for payroll
+  scope_restriction:
+    allowed_fields:
+      - gross_pay
+      - role
+      - department
+      - start_date
+      - termination_date
+      - comp_band
+      - equity_vesting
+    disallowed_fields:
+      - ssn
+      - home_address
+      - bank_account
+      - dependents
+      - medical_info
+  alert_on_scope_breach: true
+
+outputs:
+  payroll_review_dir: "payroll/{year}-{month:02d}/runs/"
+  roster_path: "headcount/roster-current.md"
+  accrual_input_path: "payroll/{year}-{month:02d}/accrual-input.md"
+  sbc_dir: "payroll/{year}-{month:02d}/sbc/"
+  schedule_path: "payroll/schedule.yaml"
+  equity_grants_path: "payroll/equity-grants.yaml"
+
+model:
+  provider: anthropic
+  name: claude-opus-4
+  max_tokens: 6000
+  temperature: 0.1   # Strictly numerical, validation-heavy
+
+notifications:
+  slack:
+    channels:
+      summary: "#payroll-ops"        # private, restricted membership
+      alerts: "#finance-alerts"
+  on_pre_run_review_ready: summary
+  on_variance_flag: summary
+  on_privacy_posture_alert: alerts
+  on_scope_breach: alerts
+  on_sbc_movement: alerts
+
+logging:
+  level: info
+  retain_days: 2555                  # 7 years
+  log_dir: "~/finance-logs/payroll-reviewer/"
+
+audit:
+  enable: true
+  log_path: "~/finance-data/audit/payroll-reviewer-audit-log.jsonl"
+  field_level_logging: true           # log every field accessed, not just operations

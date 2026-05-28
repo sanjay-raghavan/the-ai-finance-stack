@@ -50,4 +50,6 @@
 
 ## Status notes
 
-v0.1 skeleton. To be authored after Controller is in production.
+**v0.1 — fully authored.** Ships with two skills (`aging-analysis`, `collection-drafts`). Future v0.2 candidates: dedicated `cohort-metrics` skill (currently inline), `deal-line-validation` (rev-rec schedule checking), and `dispute-handling` (parsing dispute events from email/CRM).
+
+AR Follow-Up feeds Controller (rev-rec validation at close), Treasury (AR aging input to 13-week projection), FP&A (cohort metrics), and IR (NRR + churn for monthly update). Customer tone bands (Good / Standard / Repeat-Late / Chronic) are the core craft — collection drafts that get the tone wrong damage customer relationships in ways that take quarters to repair.
