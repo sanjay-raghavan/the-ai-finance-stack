@@ -1,0 +1,20 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "the-ai-finance-stack"
+main = "src/index.ts"
+compatibility_date = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Durable Object — required by McpAgent for SSE session state.
+[durable_objects]
+bindings = [
+  { name = "MCP_OBJECT", class_name = "FinanceStackMCP" }
+]
+
+# SQLite-backed Durable Object (no usage charge on Free plan).
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["FinanceStackMCP"]
+
+# Observability — see logs via `wrangler tail` or the dashboard.
+[observability]
+enabled = true

@@ -94,9 +94,23 @@ For tools where the official MCP is admin-gated (QBO) or doesn't exist (Mercury,
 
 ## Quick install
 
-The public MCP registry server is on the v0.2 roadmap (see [Project Status](#project-status) below). Until then, the install path is:
+**One-snippet install via the MCP registry (recommended).** Paste this into your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
-**Clone the repo and run the Controller (or any other fully-authored agent) locally:**
+```json
+{
+  "mcpServers": {
+    "the-ai-finance-stack": {
+      "url": "https://the-ai-finance-stack.sanjayraghavan.workers.dev/sse"
+    }
+  }
+}
+```
+
+Restart Claude Desktop. Then in a fresh conversation ask: *"What agents are available in the-ai-finance-stack registry?"* — Claude will call the registry's `browse_agents` tool and return the catalog. You can then ask Claude to install specific agents into your project folder.
+
+The registry is a Cloudflare Worker that serves the agent catalog as an MCP server. Visit [the landing page](https://the-ai-finance-stack.sanjayraghavan.workers.dev) or [the raw JSON catalog](https://the-ai-finance-stack.sanjayraghavan.workers.dev/catalog) to inspect what's available without an MCP client. Source is in [`registry/`](./registry/).
+
+**Alternative: clone the repo directly** (no MCP registry needed):
 
 ```bash
 git clone https://github.com/sanjay-raghavan/the-ai-finance-stack.git
@@ -107,20 +121,6 @@ Then follow either:
 
 - **[QUICK_START.md](./QUICK_START.md)** — try one agent interactively in Claude Desktop (~30 minutes, no dedicated machine needed)
 - **[SETUP_DEDICATED_LAPTOP.md](./SETUP_DEDICATED_LAPTOP.md)** — full setup of a Mac as your always-on agent runtime (~90 minutes)
-
-**Future (v0.2) — once the MCP registry server ships, the install becomes a single JSON snippet:**
-
-```json
-{
-  "mcpServers": {
-    "the-ai-finance-stack": {
-      "url": "https://sanjay-raghavan.github.io/the-ai-finance-stack/mcp/registry"
-    }
-  }
-}
-```
-
-(Exact URL will be confirmed when the registry server is built. See [HOSTING_PLAN.md](./HOSTING_PLAN.md) for the architecture.)
 
 ---
 

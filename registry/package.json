@@ -1,0 +1,27 @@
+{
+  "name": "the-ai-finance-stack-registry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP registry server for The AI Finance Stack — Cloudflare Worker that lets any MCP-compatible AI client browse and install Stack agents.",
+  "main": "src/index.ts",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail",
+    "types": "wrangler types"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "agents": "^0.2.0",
+    "ai": "^6.0.193",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251001.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
