@@ -65,7 +65,7 @@ The agent maintains its own data:
 Four scopes — see [`/skills/README.md`](../../skills/README.md):
 
 - **Agent-private** (in `agents/prepay-manager/skills/`): `prepay-identification`, `amortization-schedule`, `monthly-amortization`
-- **Stack-shared imports:** `stack:proposal-format` (canonical JE proposal schema — used when writing monthly amortization proposals). `stack:slack-conventions` queued for v0.2 hoist.
+- **Stack-shared imports:** `stack:proposal-format` (canonical JE proposal schema — used when writing monthly amortization proposals), `stack:slack-conventions` (channel routing)
 - **Finance plugin skills:** `finance:journal-entry-prep` (optional)
 - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 

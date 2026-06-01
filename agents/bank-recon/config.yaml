@@ -34,6 +34,13 @@ finance_plugin_skills:
   optional:
     - finance:reconciliation       # methodology + formatting
 
+# Shared skills from The AI Finance Stack's skill layer (see /skills/README.md)
+stack_skills:
+  required:
+    - stack:proposal-format        # canonical schema for recon-adjustment proposals
+    - stack:slack-conventions      # channel routing for #bank-recon + #finance-alerts
+  optional: []
+
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
 
 skills:

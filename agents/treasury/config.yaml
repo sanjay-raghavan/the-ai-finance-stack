@@ -47,6 +47,14 @@ finance_plugin_skills:
   optional:
     - finance:financial-statements   # used in weekly runway report formatting
 
+# ─── Shared skills from The AI Finance Stack's skill layer ──────
+# See /skills/README.md. Treasury is read-only on the GL — no proposal-format
+# needed. stack:kpi-snapshot and stack:driver-decomposition queued for v0.2.
+stack_skills:
+  required:
+    - stack:slack-conventions        # channel routing for #treasury-ops + #finance-alerts
+  optional: []
+
 # ─── Inherited "Global Default" skills ──────────────────────────
 global_skills:
   - sop-pdf

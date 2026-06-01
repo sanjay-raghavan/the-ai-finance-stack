@@ -84,7 +84,7 @@ Multiple banking MCPs can be connected — each adds accounts to the reconciliat
 Four scopes — see [`/skills/README.md`](../../skills/README.md):
 
 - **Agent-private** (in `agents/bank-recon/skills/`): `transaction-matching`, `unmatched-investigation`, `period-end-attestation`
-- **Stack-shared imports:** _(none in v0.1 — `stack:proposal-format` for recon-adjustment proposals and `stack:slack-conventions` queued for v0.2 hoist)_
+- **Stack-shared imports:** `stack:proposal-format` (recon-adjustment proposals), `stack:slack-conventions` (channel routing)
 - **Finance plugin skills:** `finance:reconciliation` (inherited per `config.yaml`)
 - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 

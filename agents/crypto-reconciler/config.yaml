@@ -34,6 +34,13 @@ finance_plugin_skills:
     - finance:reconciliation         # core reconciliation methodology
     - finance:journal-entry-prep     # close artifact hand-off
 
+# Shared skills from The AI Finance Stack's skill layer (see /skills/README.md)
+stack_skills:
+  required:
+    - stack:proposal-format          # canonical schema for crypto-close JE proposals
+    - stack:slack-conventions        # channel routing for #crypto-ops + #finance-alerts
+  optional: []
+
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
 
 skills:

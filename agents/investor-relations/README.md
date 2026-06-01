@@ -32,7 +32,7 @@
 - **Slack channels:** `#ir-ops`, `#finance-alerts`
 - **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
   - **Agent-private** (in `agents/investor-relations/skills/`): `investor-update-draft`, `board-prereader`, `kpi-watch`
-  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions`, `stack:kpi-snapshot`, `stack:variance-narrative` queued for v0.2 hoist)_
+  - **Stack-shared imports:** `stack:slack-conventions` (channel routing). `stack:kpi-snapshot` and `stack:variance-narrative` queued for v0.2 hoist.
   - **Finance plugin skills:** inherited per `config.yaml`
   - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 

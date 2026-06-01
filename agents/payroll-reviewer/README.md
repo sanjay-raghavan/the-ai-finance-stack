@@ -31,7 +31,7 @@
 - **Slack channels:** `#payroll-ops` (private — restrict membership!), `#finance-alerts`
 - **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
   - **Agent-private** (in `agents/payroll-reviewer/skills/`): `payroll-prereview`, `headcount-cost-tracking`
-  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions` queued; payroll JE proposals will use `stack:proposal-format` in v0.2)_
+  - **Stack-shared imports:** `stack:proposal-format` (payroll/SBC accrual proposals), `stack:slack-conventions` (channel routing — note `#payroll-private` is restricted access)
   - **Finance plugin skills:** inherited per `config.yaml`
   - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 

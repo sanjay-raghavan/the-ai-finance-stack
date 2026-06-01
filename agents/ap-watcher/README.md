@@ -33,7 +33,7 @@
 - **Slack channels:** `#ap-ops` (summaries), `#finance-alerts` (errors and escalations)
 - **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md) for the architecture):
   - **Agent-private** (in `agents/ap-watcher/skills/`): `invoice-validation`, `payment-run`
-  - **Stack-shared imports:** _(none in v0.1 — `stack:proposal-format` for accrual-on-missing-invoice and `stack:slack-conventions` queued for v0.2 hoist)_
+  - **Stack-shared imports:** `stack:proposal-format` (accrual-on-missing-invoice proposals), `stack:slack-conventions` (channel routing)
   - **Finance plugin skills:** inherited per `config.yaml`
   - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 

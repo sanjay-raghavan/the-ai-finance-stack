@@ -41,6 +41,14 @@ finance_plugin_skills:
   optional:
     - finance:financial-statements   # for formatting numeric tables in the update
 
+# ─── Shared skills from The AI Finance Stack's skill layer ──────
+# See /skills/README.md. IR is read-only on the GL — no proposal-format needed.
+# stack:variance-narrative, stack:kpi-snapshot queued for v0.2.
+stack_skills:
+  required:
+    - stack:slack-conventions        # channel routing for #ir-drafts + #finance-alerts
+  optional: []
+
 # ─── Inherited "Global Default" skills ──────────────────────────
 global_skills:
   - sop-pdf

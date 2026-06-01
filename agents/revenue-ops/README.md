@@ -32,7 +32,7 @@
 - **Slack channels:** `#revops-ops`, `#finance-alerts`
 - **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
   - **Agent-private** (in `agents/revenue-ops/skills/`): `commission-run`, `arr-reconciliation`
-  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions` queued; commission-accrual proposals will use `stack:proposal-format` in v0.2)_
+  - **Stack-shared imports:** `stack:proposal-format` (commission-accrual proposals), `stack:slack-conventions` (channel routing)
   - **Finance plugin skills:** inherited per `config.yaml`
   - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 

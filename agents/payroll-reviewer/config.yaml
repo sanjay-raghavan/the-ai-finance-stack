@@ -27,6 +27,13 @@ finance_plugin_skills:
   optional:
     - finance:journal-entry-prep   # used for SBC accrual hand-off
 
+# Shared skills from The AI Finance Stack's skill layer (see /skills/README.md)
+stack_skills:
+  required:
+    - stack:proposal-format        # canonical schema for payroll/SBC accrual proposals
+    - stack:slack-conventions      # channel routing for #payroll-private (restricted) + #finance-alerts
+  optional: []
+
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
 
 skills:

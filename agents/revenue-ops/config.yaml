@@ -28,6 +28,13 @@ finance_plugin_skills:
   optional:
     - finance:financial-statements   # for scorecard formatting
 
+# Shared skills from The AI Finance Stack's skill layer (see /skills/README.md)
+stack_skills:
+  required:
+    - stack:proposal-format        # canonical schema for commission-accrual proposals
+    - stack:slack-conventions      # channel routing for #revops + #finance-alerts
+  optional: []
+
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
 
 skills:

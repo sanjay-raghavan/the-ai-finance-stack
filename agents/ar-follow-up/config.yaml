@@ -31,6 +31,14 @@ finance_plugin_skills:
   optional:
     - finance:financial-statements   # cohort metrics formatting
 
+# Shared skills from The AI Finance Stack's skill layer (see /skills/README.md)
+# Note: AR Follow-Up doesn't propose JEs directly in v0.1 (write-offs escalate to
+# Controller). When AR proposes adjustments in v0.2, add stack:proposal-format.
+stack_skills:
+  required:
+    - stack:slack-conventions        # channel routing for #ar-ops + #finance-alerts
+  optional: []
+
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
 
 skills:

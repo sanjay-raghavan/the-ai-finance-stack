@@ -30,6 +30,7 @@ finance_plugin_skills:
 stack_skills:
   required:
     - stack:proposal-format         # canonical schema for JE proposals — must follow when writing to ~/finance-data/pending-approvals/
+    - stack:slack-conventions       # channel routing for #prepay-ops + #finance-alerts
   optional: []
 
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
