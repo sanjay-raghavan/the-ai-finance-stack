@@ -413,6 +413,20 @@ export default {
       });
     }
 
+    // License page (MIT) — also serves as the EULA for Intuit / vendor reviews.
+    if (url.pathname === "/license" || url.pathname === "/license.html") {
+      return new Response(LICENSE_PAGE, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
+    // Privacy policy — required for Intuit Production app review + other vendors.
+    if (url.pathname === "/privacy" || url.pathname === "/privacy.html") {
+      return new Response(PRIVACY_PAGE, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
     return new Response("Not found.", { status: 404 });
   },
 };
@@ -595,7 +609,190 @@ const LANDING_PAGE = `<!DOCTYPE html>
 
   <p class="footer">
     MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a> · MCP Registry v0.1.0<br/>
-    Star the repo on GitHub if this is useful. File issues, contribute back. The artifact is open.
+    <a href="/license">License (MIT)</a> · <a href="/privacy">Privacy Policy</a> · Star the repo on GitHub if this is useful.
+  </p>
+</body>
+</html>`;
+
+// ────────────────────────────────────────────────────────────────────────────
+// License page (MIT) — also serves as EULA for Intuit / other vendor reviews
+// ────────────────────────────────────────────────────────────────────────────
+
+const LICENSE_PAGE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The AI Finance Stack — License (MIT)</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           max-width: 780px; margin: 60px auto; padding: 0 20px; line-height: 1.55;
+           color: #111; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.25em; }
+    h2 { font-size: 1.2rem; margin-top: 2em; margin-bottom: 0.5em;
+         border-bottom: 1px solid #e5e5e5; padding-bottom: 0.3em; }
+    .subtitle { color: #666; margin-bottom: 2em; }
+    pre { background: #f4f4f4; padding: 16px 20px; border-radius: 8px; overflow-x: auto;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em;
+          line-height: 1.55; white-space: pre-wrap; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .nav { color: #888; font-size: 0.9em; margin-bottom: 2em; }
+    .footer { margin-top: 4em; padding-top: 2em; border-top: 1px solid #e5e5e5;
+              color: #888; font-size: 0.88em; }
+  </style>
+</head>
+<body>
+  <p class="nav"><a href="/">← Back to The AI Finance Stack</a></p>
+
+  <h1>License</h1>
+  <p class="subtitle">The AI Finance Stack is released under the MIT License. This page also serves as the end-user license agreement for the bundled MCP servers and other components.</p>
+
+  <h2>MIT License</h2>
+  <pre>MIT License
+
+Copyright (c) 2026 Sanjay Raghavan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+
+  <h2>What this means in plain English</h2>
+  <ul>
+    <li>You may use, modify, distribute, and sell this software freely, for any purpose.</li>
+    <li>You must include the copyright notice and license text in any redistribution.</li>
+    <li>The software is provided "as is" with no warranty of any kind.</li>
+    <li>The author is not liable for any damages arising from use of this software.</li>
+  </ul>
+
+  <h2>Specific notes for the QuickBooks Online integration</h2>
+  <p>The bundled QuickBooks Online MCP server (<code>mcps/qbo/</code> in the repo) is part of the same MIT license. It runs locally on the user's machine under the user's own Intuit OAuth grant. The maintainer of The AI Finance Stack has no access to user credentials, OAuth tokens, or API responses from any third-party service connected via the bundled MCPs.</p>
+  <p>By using the QuickBooks Online MCP, you agree to comply with <a href="https://developer.intuit.com/app/developer/qbo/docs/develop/develop-with-our-apis/end-user-license-agreement" target="_blank">Intuit's API Terms of Service</a> and any applicable laws and regulations governing your use of financial data in your jurisdiction.</p>
+
+  <h2>Canonical source</h2>
+  <p>The full source code, issue tracker, and license file live at <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack" target="_blank">github.com/sanjay-raghavan/the-ai-finance-stack</a>.</p>
+
+  <p class="footer">
+    The AI Finance Stack v0.1 · MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a><br/>
+    <a href="/">Home</a> · <a href="/privacy">Privacy Policy</a> · <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack">GitHub</a>
+  </p>
+</body>
+</html>`;
+
+// ────────────────────────────────────────────────────────────────────────────
+// Privacy Policy — required for Intuit Production app review + other vendors
+// ────────────────────────────────────────────────────────────────────────────
+
+const PRIVACY_PAGE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The AI Finance Stack — Privacy Policy</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           max-width: 780px; margin: 60px auto; padding: 0 20px; line-height: 1.55;
+           color: #111; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.25em; }
+    h2 { font-size: 1.2rem; margin-top: 2em; margin-bottom: 0.5em;
+         border-bottom: 1px solid #e5e5e5; padding-bottom: 0.3em; }
+    h3 { font-size: 1.05rem; margin-top: 1.6em; margin-bottom: 0.4em; color: #333; }
+    .subtitle { color: #666; margin-bottom: 2em; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px;
+           font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .nav { color: #888; font-size: 0.9em; margin-bottom: 2em; }
+    .hero { background: #f0f7ff; border-left: 4px solid #0066cc; padding: 16px 20px;
+            margin: 1.5em 0; border-radius: 4px; }
+    .footer { margin-top: 4em; padding-top: 2em; border-top: 1px solid #e5e5e5;
+              color: #888; font-size: 0.88em; }
+  </style>
+</head>
+<body>
+  <p class="nav"><a href="/">← Back to The AI Finance Stack</a></p>
+
+  <h1>Privacy Policy</h1>
+  <p class="subtitle">Effective: June 1, 2026 · Last updated: June 1, 2026</p>
+
+  <div class="hero">
+    <strong>The short version.</strong> The AI Finance Stack is an open-source toolkit that runs on your own machine. Your credentials and your data never leave your machine. The public registry server (this site) collects no user accounts, no analytics, no personal data. There is nothing for us to share, sell, or lose — because we never receive your data in the first place.
+  </div>
+
+  <h2>1. Who this policy applies to</h2>
+  <p>This policy covers two distinct components of The AI Finance Stack:</p>
+  <ul>
+    <li><strong>The public MCP registry server</strong> at <a href="https://the-ai-finance-stack.sanjayraghavan.workers.dev">the-ai-finance-stack.sanjayraghavan.workers.dev</a> — what you're visiting now.</li>
+    <li><strong>The bundled local MCP servers</strong> (e.g., <code>mcps/qbo/</code>) — open-source software you may install on your own machine.</li>
+  </ul>
+
+  <h2>2. What the public registry collects</h2>
+  <p><strong>From you, the user: nothing.</strong></p>
+  <ul>
+    <li>No user accounts. No login. No personally identifiable information collected.</li>
+    <li>No cookies set by this site.</li>
+    <li>No analytics, tracking pixels, or third-party scripts.</li>
+    <li>The registry serves a static catalog of public, open-source agent metadata. Tool calls (<code>browse_agents</code>, <code>get_agent_detail</code>, etc.) return public information about MIT-licensed components. No user-specific data is processed.</li>
+  </ul>
+  <p>Standard Cloudflare Workers infrastructure logs (IP address, request path, timing, response code) are retained by Cloudflare per <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's privacy policy</a>. The maintainer of The AI Finance Stack does not analyze, export, or otherwise use these logs.</p>
+
+  <h2>3. What the bundled local MCPs do with your data</h2>
+  <p>The bundled MCP servers (such as the QuickBooks Online MCP) run entirely on the user's local machine. Specifically:</p>
+  <ul>
+    <li><strong>OAuth credentials</strong> (refresh tokens, realm IDs) are stored locally in <code>~/.config/finance-stack/credentials/</code> on the user's machine, with restrictive file permissions (mode 0600). These credentials never leave the user's machine and are never transmitted to The AI Finance Stack or any third party.</li>
+    <li><strong>API responses</strong> from connected systems (e.g., QuickBooks Online, Mercury, Stripe) are returned directly to the user's local MCP client (Claude Desktop, Claude Code, etc.). None of this data is transmitted to any AI Finance Stack server.</li>
+    <li><strong>No analytics or telemetry</strong> is collected by the bundled MCPs. The software contains no code that "phones home" to The AI Finance Stack or any other server.</li>
+  </ul>
+  <p>The maintainer of The AI Finance Stack therefore has no access to your QuickBooks data, your bank data, your customer or vendor information, or any other data accessed via the bundled MCPs. We could not retrieve, view, or share this data even if we wanted to.</p>
+
+  <h2>4. What we explicitly do not do</h2>
+  <ul>
+    <li>We do not collect, store, process, or transmit user account information.</li>
+    <li>We do not sell, share, rent, or otherwise disclose user data to third parties — because we do not receive user data.</li>
+    <li>We do not use cookies, web beacons, or similar tracking technologies on the registry site.</li>
+    <li>We do not track user activity across sessions, devices, or sites.</li>
+    <li>We do not aggregate or anonymize user data for analytics, because we do not collect it.</li>
+  </ul>
+
+  <h2>5. Third-party services</h2>
+  <p>The public registry server runs on <a href="https://workers.cloudflare.com" target="_blank">Cloudflare Workers</a>. Cloudflare provides the underlying compute and edge infrastructure. Standard request-level logs (as described in section 2) are subject to Cloudflare's own privacy policy.</p>
+  <p>The bundled MCP servers connect to third-party services that you configure (QuickBooks Online, Mercury, Stripe, etc.) using your own credentials. The privacy policies of those services apply to the data those services hold about you. The AI Finance Stack does not modify, intercept, or process this data — it flows directly between your local machine and the third-party service.</p>
+
+  <h2>6. Your control</h2>
+  <p>Because all data stays on your machine, you control it completely:</p>
+  <ul>
+    <li>To revoke a bundled MCP's access to a third-party service, revoke its OAuth grant in that service's user dashboard (e.g., in your QuickBooks Online account settings).</li>
+    <li>To delete locally stored credentials, delete the relevant file in <code>~/.config/finance-stack/credentials/</code>.</li>
+    <li>To stop using The AI Finance Stack entirely, uninstall the software from your machine. There is nothing for us to delete on our end, because we hold nothing.</li>
+  </ul>
+
+  <h2>7. Changes to this policy</h2>
+  <p>If this policy changes (e.g., if a future version of the registry begins collecting analytics, which is not planned), the change will be visible in the commit history of this file in the <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack" target="_blank">public GitHub repo</a> and the "Last updated" date above will reflect the change.</p>
+
+  <h2>8. Contact</h2>
+  <p>The AI Finance Stack is maintained by Sanjay Raghavan. For privacy-related questions:</p>
+  <ul>
+    <li>File an issue at <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/issues" target="_blank">github.com/sanjay-raghavan/the-ai-finance-stack/issues</a></li>
+    <li>Contact via <a href="https://sanjayraghavan.substack.com" target="_blank">Substack</a> or <a href="https://www.linkedin.com/in/sanjayraghavan/" target="_blank">LinkedIn</a></li>
+  </ul>
+
+  <p class="footer">
+    The AI Finance Stack v0.1 · MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a><br/>
+    <a href="/">Home</a> · <a href="/license">License (MIT)</a> · <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack">GitHub</a>
   </p>
 </body>
 </html>`;
