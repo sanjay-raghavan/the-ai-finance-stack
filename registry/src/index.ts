@@ -427,6 +427,27 @@ export default {
       });
     }
 
+    // Launch URL — registered with Intuit; where users land after authentication.
+    if (url.pathname === "/launch" || url.pathname === "/launch.html") {
+      return new Response(LAUNCH_PAGE, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
+    // Connect / Reconnect URL — registered with Intuit; where users connect QBO.
+    if (url.pathname === "/connect" || url.pathname === "/connect.html") {
+      return new Response(CONNECT_PAGE, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
+    // Disconnect URL — registered with Intuit; where users go to disconnect.
+    if (url.pathname === "/disconnect" || url.pathname === "/disconnect.html") {
+      return new Response(DISCONNECT_PAGE, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
     return new Response("Not found.", { status: 404 });
   },
 };
@@ -609,7 +630,8 @@ const LANDING_PAGE = `<!DOCTYPE html>
 
   <p class="footer">
     MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a> · MCP Registry v0.1.0<br/>
-    <a href="/license">License (MIT)</a> · <a href="/privacy">Privacy Policy</a> · Star the repo on GitHub if this is useful.
+    <a href="/connect">Connect QBO</a> · <a href="/launch">Launch</a> · <a href="/disconnect">Disconnect</a> · <a href="/license">License (MIT)</a> · <a href="/privacy">Privacy Policy</a><br/>
+    Star the repo on GitHub if this is useful.
   </p>
 </body>
 </html>`;
@@ -793,6 +815,246 @@ const PRIVACY_PAGE = `<!DOCTYPE html>
   <p class="footer">
     The AI Finance Stack v0.1 · MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a><br/>
     <a href="/">Home</a> · <a href="/license">License (MIT)</a> · <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack">GitHub</a>
+  </p>
+</body>
+</html>`;
+
+// ────────────────────────────────────────────────────────────────────────────
+// Shared style block used by /launch, /connect, /disconnect
+// ────────────────────────────────────────────────────────────────────────────
+
+const FLOW_PAGE_STYLES = `
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           max-width: 780px; margin: 60px auto; padding: 0 20px; line-height: 1.55;
+           color: #111; }
+    h1 { font-size: 1.9rem; margin-bottom: 0.25em; line-height: 1.2; }
+    h2 { font-size: 1.2rem; margin-top: 2em; margin-bottom: 0.5em;
+         border-bottom: 1px solid #e5e5e5; padding-bottom: 0.3em; }
+    h3 { font-size: 1.05rem; margin-top: 1.6em; margin-bottom: 0.4em; color: #333; }
+    .subtitle { color: #555; margin-bottom: 2em; font-size: 1.05rem; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px;
+           font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 16px 20px; border-radius: 8px; overflow-x: auto;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em;
+          line-height: 1.55; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .nav { color: #888; font-size: 0.9em; margin-bottom: 2em; }
+    .hero { padding: 16px 20px; margin: 1.5em 0; border-radius: 6px; font-size: 1.02rem; }
+    .hero-success { background: #ecfdf5; border-left: 4px solid #10b981; }
+    .hero-info { background: #f0f7ff; border-left: 4px solid #0066cc; }
+    .hero-caution { background: #fef9e7; border-left: 4px solid #f59e0b; }
+    .step { background: #fafafa; border-radius: 8px; padding: 16px 20px; margin: 1em 0;
+            border-left: 3px solid #d1d5db; }
+    .step-num { display: inline-block; background: #0066cc; color: white;
+                width: 24px; height: 24px; border-radius: 50%; text-align: center;
+                line-height: 24px; font-weight: 600; margin-right: 8px; font-size: 0.85em; }
+    .footer { margin-top: 4em; padding-top: 2em; border-top: 1px solid #e5e5e5;
+              color: #888; font-size: 0.88em; }
+`;
+
+// ────────────────────────────────────────────────────────────────────────────
+// Launch page — registered as Launch URL with Intuit
+// Where users land after authenticating their QBO account.
+// ────────────────────────────────────────────────────────────────────────────
+
+const LAUNCH_PAGE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're Connected — The AI Finance Stack</title>
+  <style>${FLOW_PAGE_STYLES}</style>
+</head>
+<body>
+  <p class="nav"><a href="/">← The AI Finance Stack home</a></p>
+
+  <h1>You're connected.</h1>
+  <p class="subtitle">Your QuickBooks Online account is now authorized with The AI Finance Stack. The integration runs locally on your machine — your books never leave it.</p>
+
+  <div class="hero hero-success">
+    <strong>Authorization confirmed.</strong> The refresh token has been saved to <code>~/.config/finance-stack/credentials/qbo.json</code> on your local machine. From this point forward, you can ask Claude questions about your books in plain English and get real answers.
+  </div>
+
+  <h2>Try a query</h2>
+  <p>Open a fresh conversation in Claude Desktop and ask any of these:</p>
+
+  <div class="step">
+    <span class="step-num">1</span><strong>"What's our chart of accounts? Just the expense accounts."</strong><br/>
+    Claude calls <code>chart_of_accounts_get</code> with <code>account_type=Expense</code> and returns the list.
+  </div>
+
+  <div class="step">
+    <span class="step-num">2</span><strong>"How much did we spend on consulting this month?"</strong><br/>
+    Claude calls <code>profit_and_loss_get</code> for the current month, finds the Consulting line, returns the dollar amount.
+  </div>
+
+  <div class="step">
+    <span class="step-num">3</span><strong>"Show me every JE that hit our Insurance Expense account in April."</strong><br/>
+    Claude calls <code>transactions_by_account</code> with the account ID and date range, returns each line.
+  </div>
+
+  <div class="step">
+    <span class="step-num">4</span><strong>"What's our current AR aging? Who owes us the most?"</strong><br/>
+    Claude calls <code>ar_aging_get</code> in summary mode and reports the largest balances.
+  </div>
+
+  <h2>What's available — 12 read-only tools</h2>
+  <p>The bundled QBO MCP exposes these to Claude:</p>
+  <ul>
+    <li><code>company_info_get</code>, <code>chart_of_accounts_get</code>, <code>closing_date_get</code></li>
+    <li><code>recent_transactions_get</code>, <code>journal_entry_get</code>, <code>journal_entries_search</code></li>
+    <li><code>vendor_search</code>, <code>customer_search</code></li>
+    <li><code>ap_aging_get</code>, <code>ar_aging_get</code></li>
+    <li><code>profit_and_loss_get</code>, <code>transactions_by_account</code></li>
+  </ul>
+
+  <div class="hero hero-info">
+    <strong>v0.1 is strictly read-only.</strong> No journal entry creation, no invoice posting, no edits. Write capability is queued for v0.2 once the propose → human approve → post pipeline (via the QBO Poster agent) is wired up end to end. <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/agents/qbo-poster/README.md">Read about the architecture</a>.
+  </div>
+
+  <h2>If something isn't working</h2>
+  <ul>
+    <li><strong>Claude doesn't see the QBO MCP</strong> — check that <code>claude_desktop_config.json</code> points at the right Python and module path; fully quit Claude Desktop (Cmd-Q) and reopen.</li>
+    <li><strong>"Refresh token rejected"</strong> — your token expired (Intuit refresh tokens last 101 days unused). Re-run setup: <code>python -m qbo_mcp.server --setup</code></li>
+    <li><strong>"401 Unauthorized" on a tool call</strong> — usually transient; retry. If persistent, re-run setup.</li>
+  </ul>
+
+  <p>Full troubleshooting in the <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/mcps/qbo/README.md">QBO MCP README</a>.</p>
+
+  <p class="footer">
+    The AI Finance Stack v0.1 · MIT License · <a href="/">Home</a> · <a href="/connect">Connect</a> · <a href="/disconnect">Disconnect</a> · <a href="/license">License</a> · <a href="/privacy">Privacy</a>
+  </p>
+</body>
+</html>`;
+
+// ────────────────────────────────────────────────────────────────────────────
+// Connect page — registered as Connect/Reconnect URL with Intuit
+// Where users go to connect their QBO account to The AI Finance Stack.
+// ────────────────────────────────────────────────────────────────────────────
+
+const CONNECT_PAGE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect QuickBooks — The AI Finance Stack</title>
+  <style>${FLOW_PAGE_STYLES}</style>
+</head>
+<body>
+  <p class="nav"><a href="/">← The AI Finance Stack home</a></p>
+
+  <h1>Connect QuickBooks Online.</h1>
+  <p class="subtitle">The AI Finance Stack reads your books locally, under your own OAuth grant. Your credentials never leave your machine. Setup takes about 10 minutes the first time.</p>
+
+  <div class="hero hero-info">
+    <strong>How this works.</strong> You install a small Python MCP server on your own machine (Mac, Linux, or Windows). It uses Intuit's OAuth flow to read from QuickBooks Online. Claude Desktop (or any MCP-compatible client) talks to the local server, which talks to QBO. No third-party servers are in the data path.
+  </div>
+
+  <h2>Setup — 5 steps</h2>
+
+  <div class="step">
+    <span class="step-num">1</span><strong>Clone the repo</strong>
+    <pre>git clone https://github.com/sanjay-raghavan/the-ai-finance-stack.git
+cd the-ai-finance-stack/mcps/qbo</pre>
+  </div>
+
+  <div class="step">
+    <span class="step-num">2</span><strong>Create a virtual environment and install</strong>
+    <pre>python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .</pre>
+  </div>
+
+  <div class="step">
+    <span class="step-num">3</span><strong>Configure your Intuit credentials</strong><br/>
+    Copy <code>.env.example</code> to <code>.env</code>, then fill in <code>QBO_CLIENT_ID</code> and <code>QBO_CLIENT_SECRET</code> from your <a href="https://developer.intuit.com/app/developer/myapps" target="_blank">Intuit Developer dashboard</a>. Set <code>QBO_ENVIRONMENT=production</code>.
+  </div>
+
+  <div class="step">
+    <span class="step-num">4</span><strong>Run the one-time OAuth flow</strong>
+    <pre>python -m qbo_mcp.server --setup</pre>
+    Your browser opens to Intuit. Sign in, authorize the app, you'll be redirected here.
+  </div>
+
+  <div class="step">
+    <span class="step-num">5</span><strong>Wire into Claude Desktop</strong><br/>
+    Edit <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (macOS) and add a <code>quickbooks</code> entry under <code>mcpServers</code> pointing at your local Python venv and the <code>qbo_mcp.server</code> module. Full config example in the <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/mcps/qbo/README.md#5-wire-into-claude-desktop">QBO MCP README</a>.
+  </div>
+
+  <h2>What you get</h2>
+  <ul>
+    <li><strong>12 read-only tools</strong> exposed to Claude — chart of accounts, recent transactions, journal entries, vendor / customer search, AP and AR aging, P&L, and account-level drill-downs.</li>
+    <li><strong>Local-only architecture</strong> — refresh tokens stored at <code>~/.config/finance-stack/credentials/qbo.json</code> with mode 0600 permissions. Never transmitted off your machine.</li>
+    <li><strong>Token auto-refresh</strong> — access tokens refresh every 60 minutes automatically; refresh tokens rotate forward on each use (101-day lifetime if unused).</li>
+  </ul>
+
+  <h2>About the broader project</h2>
+  <p>The QBO MCP is part of <a href="/">The AI Finance Stack</a> — a free, open-source collection of 12 Finance AI agents and shared skills, designed around the <strong>propose → human approve → post</strong> architecture. The MCP gives the agents (and you, directly in Claude Desktop) read access to your books. Write capability is queued for v0.2 once the approval pipeline is wired end to end.</p>
+
+  <p><a href="https://github.com/sanjay-raghavan/the-ai-finance-stack">Browse the source on GitHub</a> · <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/ARCHITECTURE.md">Read the architecture</a> · <a href="https://sanjayraghavan.substack.com">The companion lesson series on Substack</a></p>
+
+  <p class="footer">
+    The AI Finance Stack v0.1 · MIT License · <a href="/">Home</a> · <a href="/launch">Launch</a> · <a href="/disconnect">Disconnect</a> · <a href="/license">License</a> · <a href="/privacy">Privacy</a>
+  </p>
+</body>
+</html>`;
+
+// ────────────────────────────────────────────────────────────────────────────
+// Disconnect page — registered as Disconnect URL with Intuit
+// Where users go to fully disconnect The AI Finance Stack from their QBO.
+// ────────────────────────────────────────────────────────────────────────────
+
+const DISCONNECT_PAGE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disconnect — The AI Finance Stack</title>
+  <style>${FLOW_PAGE_STYLES}</style>
+</head>
+<body>
+  <p class="nav"><a href="/">← The AI Finance Stack home</a></p>
+
+  <h1>Disconnect The AI Finance Stack.</h1>
+  <p class="subtitle">Three short steps to fully remove The AI Finance Stack from your QuickBooks Online and your local machine. No data persists on remote servers — everything to clean up lives on Intuit's side and your own machine.</p>
+
+  <div class="hero hero-caution">
+    <strong>The AI Finance Stack does not store your data on any remote server.</strong> Your credentials and any API responses you've retrieved live entirely on your local machine. Disconnecting is a local cleanup plus revoking the OAuth grant in QuickBooks.
+  </div>
+
+  <h2>Step 1 — Revoke the OAuth grant in QuickBooks</h2>
+  <p>This stops Intuit from accepting any further API calls from The AI Finance Stack, even if a credential file is left behind somewhere.</p>
+
+  <div class="step">
+    <span class="step-num">1</span>Sign in to <a href="https://app.qbo.intuit.com/app/connected-apps" target="_blank">app.qbo.intuit.com/app/connected-apps</a> (or navigate to <strong>Settings → Manage Users → Connected Apps</strong> in your QuickBooks Online dashboard).<br/><br/>
+    <span class="step-num">2</span>Find <strong>The AI Finance Stack</strong> in your list of connected apps.<br/><br/>
+    <span class="step-num">3</span>Click <strong>Disconnect</strong>. Intuit invalidates the OAuth grant immediately — no further API calls will succeed even if the local credentials are still on disk.
+  </div>
+
+  <h2>Step 2 — Delete the local credentials file</h2>
+  <p>This removes the refresh token from your machine.</p>
+
+  <pre>rm ~/.config/finance-stack/credentials/qbo.json</pre>
+
+  <p>On Windows, the path is typically <code>%APPDATA%\\finance-stack\\credentials\\qbo.json</code>.</p>
+
+  <h2>Step 3 — Remove from Claude Desktop config (optional)</h2>
+  <p>If you no longer want the QBO MCP server to start with Claude Desktop, edit your config and remove the <code>"quickbooks"</code> entry under <code>mcpServers</code>.</p>
+
+  <p>On macOS, the config file lives at:</p>
+  <pre>~/Library/Application Support/Claude/claude_desktop_config.json</pre>
+
+  <p>Remove the <code>"quickbooks"</code> block and any commas that were holding it in the list. Save the file. Fully quit Claude Desktop (Cmd-Q) and reopen.</p>
+
+  <h2>What about data we might have stored?</h2>
+  <p>The AI Finance Stack runs entirely on your machine. We do not operate any user-data storage — see the <a href="/privacy">Privacy Policy</a> for the full statement. Once you've revoked the OAuth grant and deleted the local credentials file, there is nothing further to clean up. No accounts to delete, no servers to email.</p>
+
+  <h2>Reconnecting later</h2>
+  <p>If you want to reconnect The AI Finance Stack to your QuickBooks Online account at a later date, follow the <a href="/connect">Connect</a> instructions. The setup flow takes about 10 minutes and uses standard Intuit OAuth — no special steps needed for users who previously disconnected.</p>
+
+  <p class="footer">
+    The AI Finance Stack v0.1 · MIT License · <a href="/">Home</a> · <a href="/launch">Launch</a> · <a href="/connect">Connect</a> · <a href="/license">License</a> · <a href="/privacy">Privacy</a>
   </p>
 </body>
 </html>`;
