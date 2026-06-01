@@ -429,25 +429,63 @@ const LANDING_PAGE = `<!DOCTYPE html>
   <title>The AI Finance Stack — MCP Registry</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-           max-width: 720px; margin: 60px auto; padding: 0 20px; line-height: 1.5;
+           max-width: 780px; margin: 60px auto; padding: 0 20px; line-height: 1.55;
            color: #111; }
-    h1 { font-size: 2rem; margin-bottom: 0.25em; }
-    .subtitle { color: #666; margin-bottom: 2em; }
+    h1 { font-size: 2.2rem; margin-bottom: 0.25em; line-height: 1.2; }
+    h2 { font-size: 1.4rem; margin-top: 2.2em; margin-bottom: 0.5em;
+         border-bottom: 1px solid #e5e5e5; padding-bottom: 0.3em; }
+    h3 { font-size: 1.1rem; margin-top: 1.6em; margin-bottom: 0.4em; color: #333; }
+    .subtitle { color: #555; margin-bottom: 2em; font-size: 1.1rem; }
+    .hero { background: #f8fafc; border-left: 4px solid #0066cc; padding: 16px 20px;
+            margin: 1.5em 0; font-size: 1.02rem; }
     code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px;
            font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
     pre { background: #f4f4f4; padding: 16px; border-radius: 8px; overflow-x: auto;
-          font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; }
-    a { color: #0066cc; }
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em;
+          line-height: 1.5; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
     .pack { display: inline-block; padding: 2px 8px; border-radius: 4px;
-            font-size: 0.8em; margin-right: 4px; }
+            font-size: 0.78em; font-weight: 600; margin-right: 6px; vertical-align: middle; }
     .pack-core { background: #e3f2fd; color: #1565c0; }
     .pack-crypto { background: #fff3e0; color: #e65100; }
     .pack-execution { background: #fce4ec; color: #c2185b; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e5e5;
+             vertical-align: top; }
+    th { background: #fafafa; font-weight: 600; }
+    .status-shipped { color: #1b5e20; font-weight: 600; font-size: 0.85em; }
+    .status-v02 { color: #6c757d; font-size: 0.85em; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1em 0; }
+    .grid-2 > div { background: #fafafa; padding: 16px; border-radius: 8px; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    .arch-box { background: #f8f9fa; border: 1px solid #e5e5e5; border-radius: 8px;
+                padding: 16px 20px; margin: 1em 0; }
+    .footer { margin-top: 4em; padding-top: 2em; border-top: 1px solid #e5e5e5;
+              color: #888; font-size: 0.88em; }
   </style>
 </head>
 <body>
-  <h1>The AI Finance Stack — MCP Registry</h1>
-  <p class="subtitle">A free, open-source AI Finance team. 12 agents, 3 shared skills, propose → approve → post discipline.</p>
+  <h1>The AI Finance Stack</h1>
+  <p class="subtitle">An open-source AI Finance team — designed around <em>propose → human approve → post</em> discipline. Runs on your own machine, under your own credentials, with auditable provenance for every entry on your books.</p>
+
+  <div class="hero">
+    <strong>v0.1 inventory:</strong> 12 agents across 3 packs, 3 shipped shared skills (with 6 more queued for v0.2), and a 4-tier MCP integration framework covering 8 bundled local connectors for the tools where official MCPs are missing or admin-gated. MIT-licensed.
+  </div>
+
+  <h2>The architecturally distinctive idea</h2>
+  <p>Most "AI for Finance" projects let agents post to the GL directly. That's how silent failures happen, how closed-period entries sneak through, and how auditors lose confidence in your books.</p>
+  <p>This Stack inverts that: <strong>every JE-writing agent proposes; exactly one execution-pack agent posts — and only after explicit human approval, validated through 8 checks</strong> (authorized approver, content-hash integrity, period not closed, accounts active, idempotency, approver limits, approval recency, structural validity). One Slack reply per entry. An AI Finance team you can deploy in production without losing sleep.</p>
+
+  <div class="arch-box">
+    <strong>The flow:</strong><br/>
+    Proposing agent (Controller, Prepay Manager, AP Watcher, Bank Recon, etc.) writes a proposal →
+    Slack approval request posted in <code>#finance-approvals</code> →
+    Human types <code>/approve &lt;proposal-id&gt;</code> →
+    Approval handler writes record with SHA-256 hash →
+    QBO Poster validates (8 checks) and commits →
+    Confirmation written, audit log appended, Slack thread replied.
+  </div>
 
   <h2>Install</h2>
   <p>Paste this into your Claude Desktop config file
@@ -460,25 +498,104 @@ const LANDING_PAGE = `<!DOCTYPE html>
   }
 }</pre>
   <p>Restart Claude Desktop, then in a fresh conversation ask:
-  <em>"List the agents available in The AI Finance Stack."</em></p>
+  <em>"What agents are available in the-ai-finance-stack registry?"</em> — Claude calls <code>browse_agents</code> and returns the full catalog. From there you can have Claude install specific agents into your project folder, customize them, and run them.</p>
 
-  <h2>What you get</h2>
-  <ul>
-    <li><span class="pack pack-core">core</span> 10 agents — Controller, FP&A Analyst, Treasury, IR, AP Watcher, AR Follow-Up, Revenue Ops, Payroll Reviewer, Prepay Manager, Bank Recon</li>
-    <li><span class="pack pack-crypto">crypto</span> 1 agent — Crypto Reconciler</li>
-    <li><span class="pack pack-execution">execution</span> 1 agent — QBO Poster (the only write-capable agent — propose → approve → post)</li>
-    <li>3 shared skills — stack:proposal-format, stack:approval-record-format, stack:slack-conventions</li>
-  </ul>
+  <h2>The 12 agents (v0.1)</h2>
+
+  <h3><span class="pack pack-core">core</span> 10 agents — universal Finance functions</h3>
+  <table>
+    <tr><th>Agent</th><th>Function</th><th>What it owns</th></tr>
+    <tr><td><strong>Controller</strong></td><td>Accounting</td><td>Month-end close, accruals, reconciliations, status reports</td></tr>
+    <tr><td><strong>FP&A Analyst</strong></td><td>FP&A</td><td>Variance with driver decomposition; rolling forecast; scenarios; 2-week annual budget cycle + quarterly re-forecast</td></tr>
+    <tr><td><strong>Treasury</strong></td><td>Treasury</td><td>Cash position; 13-week projection; runway calc with confidence bands. PSP-aware.</td></tr>
+    <tr><td><strong>Investor Relations</strong></td><td>IR</td><td>Monthly investor update drafts; board pre-reader; KPI watching</td></tr>
+    <tr><td><strong>AP Watcher</strong></td><td>AP</td><td>Invoice validation, duplicate detection, vendor contracts, month-end accrual proposals</td></tr>
+    <tr><td><strong>AR Follow-Up</strong></td><td>AR</td><td>Aging-based collection drafts in tone-matched bands (Good/Standard/Repeat-Late/Chronic), DSO tracking</td></tr>
+    <tr><td><strong>Revenue Ops</strong></td><td>RevOps</td><td>Commission calculations, ARR reconciliation, deal-desk support</td></tr>
+    <tr><td><strong>Payroll Reviewer</strong></td><td>Payroll</td><td>Pre-run variance review, headcount cost tracking. Privacy-scoped, restricted channel.</td></tr>
+    <tr><td><strong>Prepay Manager</strong></td><td>Accounting</td><td>Full prepayment lifecycle: identification, schedule generation, monthly amortization proposals, reconciliation</td></tr>
+    <tr><td><strong>Bank Recon</strong></td><td>Cash & Banking</td><td>Daily transaction matching, unmatched investigation, period-end attestation. Context-aware (uses AP/AR/Treasury outputs).</td></tr>
+  </table>
+
+  <h3><span class="pack pack-crypto">crypto pack</span> 1 agent — for companies with tokens on the balance sheet</h3>
+  <table>
+    <tr><th>Agent</th><th>What it owns</th></tr>
+    <tr><td><strong>Crypto Reconciler</strong></td><td>Multi-chain wallet reconciliation, gas/fee separation, cost-basis sanity checks. For Tres Finance / Bitwave / on-chain subledgers.</td></tr>
+  </table>
+
+  <h3><span class="pack pack-execution">execution pack</span> 1 agent — the only write-capable agents</h3>
+  <table>
+    <tr><th>Agent</th><th>What it owns</th></tr>
+    <tr><td><strong>QBO Poster</strong></td><td>The only agent permitted to write to QuickBooks Online. Reads approval records, runs 8-check validation, posts to QBO via MCP, verifies the post landed, writes immutable confirmation. Idempotent. Halts on anything unexpected.</td></tr>
+  </table>
+
+  <h2>Shared skill layer</h2>
+  <p>The foundation that prevents schema drift across agents. When multiple agents need the same canonical schema, methodology, or format, it lives in <code>skills/</code> at the repo root and any agent imports it as <code>stack:&lt;name&gt;</code>. Also invokable directly by a human in Claude Desktop — no agent required.</p>
+
+  <table>
+    <tr><th>Shared skill</th><th>What it standardizes</th><th>Status</th></tr>
+    <tr><td><code>stack:proposal-format</code></td><td>Canonical JE proposal schema (8 agents import it)</td><td class="status-shipped">v0.1 — shipped</td></tr>
+    <tr><td><code>stack:approval-record-format</code></td><td>Canonical approval record (auth, content hash, integrity)</td><td class="status-shipped">v0.1 — shipped</td></tr>
+    <tr><td><code>stack:slack-conventions</code></td><td>Channel routing, severity emojis, mention rules, link format</td><td class="status-shipped">v0.1 — shipped</td></tr>
+    <tr><td><code>stack:audit-log-entry</code></td><td>JSONL schema for every agent's audit log</td><td class="status-v02">v0.2</td></tr>
+    <tr><td><code>stack:variance-narrative</code></td><td>Driver-aware variance commentary</td><td class="status-v02">v0.2</td></tr>
+    <tr><td><code>stack:driver-decomposition</code></td><td>Volume × Rate × Mix + Headcount × Cost-per-Head</td><td class="status-v02">v0.2</td></tr>
+    <tr><td><code>stack:kpi-snapshot</code></td><td>Canonical KPI extraction format</td><td class="status-v02">v0.2</td></tr>
+    <tr><td><code>stack:close-packet-format</code></td><td>Controller's close artifact structure</td><td class="status-v02">v0.2</td></tr>
+    <tr><td><code>stack:budget-checker</code></td><td>Query a budget XLSX for vendors / GL codes / employees</td><td class="status-v02">v0.2</td></tr>
+  </table>
+
+  <h2>MCP integration — the four-tier framework</h2>
+  <p>The MCP ecosystem for finance tools is uneven: some have great official MCPs (Slack, Gmail, Box, Notion), some have admin-gated MCPs that block non-admin users (QuickBooks), some have nothing (Mercury, Stripe, Brex). The Stack uses a four-tier hierarchy so agents work regardless:</p>
+
+  <table>
+    <tr><th>Tier</th><th>When to use</th><th>Examples</th></tr>
+    <tr><td><strong>1. Official MCP</strong></td><td>Vendor's MCP works at user scope</td><td>Slack, Gmail, Notion, Box, Google Calendar</td></tr>
+    <tr><td><strong>2. Bundled local MCP</strong></td><td>Official is admin-gated or missing</td><td>qbo, bill-com, ramp, mercury, stripe, brex, rippling, carta <em>(all v0.2)</em></td></tr>
+    <tr><td><strong>3. Bash + Python wrapper</strong></td><td>One-off, doesn't justify full MCP</td><td>Internal data warehouse queries</td></tr>
+    <tr><td><strong>4. Hosted MCP gateway</strong></td><td>Zero local setup, trust third party</td><td>Smithery, Composio, Glama</td></tr>
+  </table>
+
+  <p>v0.2 ships 8 bundled local MCPs under <code>mcps/</code> in the repo. Each runs locally under <em>your</em> OAuth grant — credentials never leave your machine. Solves the "I'm not the QBO admin and the official MCP doesn't work for me" problem cleanly.</p>
+
+  <h2>What's coming in v0.2</h2>
+  <div class="grid-2">
+    <div>
+      <strong>Bundled MCPs</strong><br/>
+      8 Python MCP servers (qbo, bill-com, ramp, mercury, stripe, brex, rippling, carta) running locally under your OAuth grant
+    </div>
+    <div>
+      <strong>6 more shared skills</strong><br/>
+      audit-log-entry, variance-narrative, driver-decomposition, kpi-snapshot, close-packet-format, budget-checker
+    </div>
+    <div>
+      <strong>Additional execution Posters</strong><br/>
+      netsuite-poster, xero-poster, rillet-poster, sage-intacct-poster — same propose → approve → post contract
+    </div>
+    <div>
+      <strong>create-finance-mcp skill</strong><br/>
+      Scaffolds new bundled MCPs from a template. Community-contributable.
+    </div>
+  </div>
+
+  <p>Beyond v0.2: industry packs for PSP and SaaS; v0.3+ adds investment research, options & derivatives, private capital, and wealth management packs (Series II of the curriculum).</p>
+
+  <h2>Companion lesson series</h2>
+  <p>The Stack is the <em>artifact</em>. The <a href="https://sanjayraghavan.substack.com">AI-Powered Finance Substack</a> is the <em>why and how</em> — 43 lessons across 8 modules. Module 7 (the agent track) is where the Stack gets introduced, dissected, and built up from first principles. If you want to understand the design decisions, that's where they're documented.</p>
 
   <h2>Links</h2>
   <ul>
-    <li><a href="https://github.com/sanjay-raghavan/the-ai-finance-stack">GitHub repo</a> — source, docs, contributions</li>
+    <li><a href="https://github.com/sanjay-raghavan/the-ai-finance-stack">GitHub repo</a> — source, docs, contributions, issues</li>
+    <li><a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/ARCHITECTURE.md">ARCHITECTURE.md</a> — three-layer architecture + extension model + skill layer</li>
+    <li><a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/MCP_INTEGRATION.md">MCP_INTEGRATION.md</a> — full four-tier framework</li>
+    <li><a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/QUICK_START.md">QUICK_START.md</a> — 30-min install guide</li>
     <li><a href="/catalog">/catalog</a> — full JSON catalog (no MCP client needed to inspect)</li>
-    <li><a href="https://sanjayraghavan.substack.com">AI-Powered Finance Substack</a> — the lesson series that builds toward this Stack</li>
+    <li><a href="https://sanjayraghavan.substack.com">AI-Powered Finance Substack</a> — the lesson series</li>
   </ul>
 
-  <p style="margin-top: 3em; color: #999; font-size: 0.85em;">
-    MIT License · Author: Sanjay Raghavan · MCP Registry v0.1.0
+  <p class="footer">
+    MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a> · MCP Registry v0.1.0<br/>
+    Star the repo on GitHub if this is useful. File issues, contribute back. The artifact is open.
   </p>
 </body>
 </html>`;
