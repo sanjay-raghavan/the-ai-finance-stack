@@ -2,12 +2,14 @@
 
 > Your FP&A workhorse — runs variance analysis with driver decomposition, refreshes the rolling forecast as actuals come in, maintains the scenario model, and turns numbers into the narrative the CFO uses with the board.
 
-**Category:** Finance & Accounting · **Function:** FP&A · **Status:** 🟡 Skeleton (v0.1 target) · **License:** MIT
+**Category:** Finance & Accounting · **Function:** FP&A · **Status:** 🟢 v0.1 — fully authored · **License:** MIT
 
 ---
 
 ## What FP&A Analyst does
 
+- **Annual budget build** — orchestrates the 2-week budget cycle (smaller-org cadence): pre-populates per-leader input templates from prior-year actuals, captures inputs via scheduled syncs, reconciles top-down vs bottom-up, runs driver-consistency checks, generates the board package, posts the locked budget to the operating model. The agent orchestrates and synthesizes; the CFO and leaders own the calls.
+- **Quarterly re-forecast** — same machinery, lighter loop. Pulls YTD actuals, DMs each leader for back-half-of-year revisions, updates the forecast for Q3/Q4 (history never moves).
 - **Variance analysis** — actuals vs. budget with full driver decomposition (Volume × Rate × Mix for revenue businesses; Headcount × Cost-per-Head for OpEx). Uses `finance:variance-analysis`
 - **Rolling forecast refresh** — as actuals come in, updates the 12-month forward forecast using the documented methodology; never modifies historical actuals
 - **Scenario maintenance** — keeps Bull / Base / Bear scenarios live; updates inputs when the underlying drivers shift materially
@@ -30,7 +32,7 @@
 
 - **MCPs:** accounting MCP + `slack`; optionally `metabase`, `cubedev`, `googlesheets` for the model file
 - **Slack channels:** `#fpa-ops`, `#finance-alerts`
-- **Skills (planned):** `variance-decomposition`, `forecast-refresh`, `scenario-flex`, `kpi-snapshot`, `variance-narrative`
+- **Skills:** `budget-build`, `variance-decomposition`, `forecast-refresh`, `scenario-flex` (`kpi-snapshot` and `what-if-analysis` planned for v0.2)
 
 ---
 
@@ -38,8 +40,8 @@
 
 - **Daily variance check** (during close): 7am
 - **Monthly variance report:** Day 4 of close, 9am
-- **Quarterly scenario refresh:** first Monday of new quarter
-- **Annual budget cycle support:** Q4 onwards, on-demand
+- **Quarterly scenario refresh + re-forecast:** first Monday of new quarter
+- **Annual budget build:** kicked off by CFO via `/budget-kickoff <fiscal-year>` in `#fpa-budget` (~3-4 weeks before fiscal year start). Runs over 2 weeks.
 
 ---
 
@@ -52,6 +54,8 @@
 
 ## Status notes
 
-**v0.1 — fully authored.** Second reference implementation in The AI Finance Stack, after Controller. Ships with three skills (`variance-decomposition`, `forecast-refresh`, `scenario-flex`); two more (`kpi-snapshot`, `what-if-analysis`) planned for v0.2.
+**v0.1 — fully authored.** Second reference implementation in The AI Finance Stack, after Controller. Ships with four skills (`budget-build`, `variance-decomposition`, `forecast-refresh`, `scenario-flex`); two more (`kpi-snapshot`, `what-if-analysis`) planned for v0.2.
 
-The agent's design depends on the Controller — Day 4 variance work consumes Controller's close packet. Run Controller first.
+The agent has two distinct operating tempos:
+- **Continuous monthly cadence** — variance work on Day 4, forecast refresh same day, scenario refresh quarterly. Depends on Controller's close packet existing first.
+- **Annual budget cycle** — ~3-4 weeks before fiscal year start; runs over 2 weeks of orchestrated input gathering from department leaders. Quarterly re-forecasts run alongside the scenario refresh.

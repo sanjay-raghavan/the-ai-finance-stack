@@ -51,6 +51,7 @@ global_skills:
 
 # ─── Agent-specific skills ──────────────────────────────────────
 skills:
+  - budget-build              # Annual budget build (2-week cadence) + quarterly re-forecast
   - variance-decomposition
   - forecast-refresh
   - scenario-flex
@@ -71,7 +72,15 @@ schedule:
       cron: "0 9 * 1,4,7,10 1" # First Monday of new quarter
     kpi_snapshot:
       cron: "0 11 * 1,4,7,10 *" # First weekday of new quarter
+    reforecast:
+      cron: "0 9 * 1,4,7,10 1" # First Monday of new quarter — runs alongside scenario_refresh
+      skill: budget-build
+      mode: reforecast
   on_demand:
+    # Annual budget build triggers from /budget-kickoff <fiscal-year> in #fpa-budget.
+    # Quarterly re-forecasts can also trigger ad-hoc from /reforecast <quarter>.
+    budget_kickoff_listener: enabled
+    reforecast_listener: enabled
     # What-if requests are triggered by Slack DMs to the agent.
     what_if_listener: enabled
   timezone: America/New_York
