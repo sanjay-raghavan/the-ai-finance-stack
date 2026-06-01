@@ -114,6 +114,7 @@ Then follow either:
 - **[SETUP_DEDICATED_LAPTOP.md](./SETUP_DEDICATED_LAPTOP.md)** — How to set up an old Mac/MacBook as your Tier-5 agent server
 - **[CURRICULUM_MAP.md](./CURRICULUM_MAP.md)** — How each agent here maps to a lesson in the *AI-Powered Finance* series
 - **agents/** — Each subfolder is one installable agent package
+- **skills/** — Shared skill layer. Canonical schemas, formats, and methodologies that multiple agents invoke (e.g., `stack:proposal-format` — the contract that holds the propose→approve→post execution pack together). See [`skills/README.md`](./skills/README.md).
 - **mcps/** — Bundled local MCP servers (v0.2). For tools where the official MCP requires admin access or doesn't exist: QBO, Ramp, Mercury, Stripe, Brex, Rippling, Carta.
 - **registry/** — The public MCP registry server (Python/FastAPI) that hosts the Stack catalog for outside users — v0.2 deliverable
 - **runtime/** — Helper scripts for the dedicated-laptop setup (cron, launchd plists, log rotation)
@@ -126,6 +127,7 @@ Then follow either:
 
 **On the v0.2 roadmap:**
 
+- **Hoist the remaining 8 shared skills** from agent-private duplicates to `skills/`: `approval-record-format`, `slack-conventions`, `audit-log-entry`, `variance-narrative`, `driver-decomposition`, `kpi-snapshot`, `close-packet-format`, `budget-checker`. The first (`stack:proposal-format`) shipped in v0.1; see [`skills/README.md`](./skills/README.md) for the full catalog and the hoist rationale.
 - **Bundled local MCPs** — Python MCP servers under `mcps/` for the tools where the official MCP is admin-gated (QBO) or doesn't exist (Mercury, Stripe, Brex, Rippling, Carta). Each runs locally under the user's own OAuth grant — no admin requirement, no third-party hosting, credentials never leave the user's machine. See [MCP_INTEGRATION.md](./MCP_INTEGRATION.md) for the full pattern hierarchy and rollout plan.
 - **`create-finance-mcp` skill** — scaffolds a new bundled local MCP from a template (OAuth, token refresh, error handling, logging, tests). The leverage move that lets the community contribute MCPs at the same standard.
 - **MCP registry server** — public Cloudflare Workers endpoint that serves the Stack's agent catalog so the install path becomes a single JSON snippet (no `git clone` required). Separate concern from the bundled MCPs above — this distributes *agents*, while `mcps/` provides the *tool connectors* those agents use.

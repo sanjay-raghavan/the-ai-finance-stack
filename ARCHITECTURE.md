@@ -69,9 +69,93 @@ agents/close-orchestrator/
 
 **Design principles:**
 - **Self-contained.** Drop an agent folder anywhere — it should run.
-- **Composable skills.** Skills can be shared across agents. The same `accrual-entries.md` skill that the Close Orchestrator uses can be invoked by the AP Watcher when a close is approaching.
+- **Composable skills.** Skills can be shared across agents — see [The Skill Layer](#the-skill-layer) below.
 - **Plain text.** Everything is markdown or YAML, version-controllable, diff-able, reviewable.
 - **No code inside the agent itself.** The runtime (Layer 2) executes; the agent describes.
+
+---
+
+## The Skill Layer
+
+Before describing the runtime and registry, one foundational concern: **how skills compose.** Skills are the atomic unit of reasoning in the Stack — each one captures one capability completely. Agents are orchestrators that invoke skills; skills are the work.
+
+The Stack supports **four scopes of skill**, in order of specificity:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  AGENT-PRIVATE — agents/<name>/skills/<skill>.md                │
+│  ────────────────────────────────────────────                   │
+│  Tightly coupled to one agent's identity, schedule, workflow.   │
+│  Examples: close-calendar (Controller), transaction-matching    │
+│  (Bank Recon), approval-validation (QBO Poster).                │
+│                                                                 │
+│  Invoked: only by the owning agent.                             │
+└─────────────────────────────────────────────────────────────────┘
+                            +
+┌─────────────────────────────────────────────────────────────────┐
+│  STACK-SHARED — skills/<skill>.md (at repo root)                │
+│  ────────────────────────────────────────────                   │
+│  Used by multiple agents. Single source of truth for schemas,   │
+│  formats, methodologies that lose meaning if duplicated.        │
+│  Examples: proposal-format, approval-record-format,             │
+│  slack-conventions, kpi-snapshot, budget-checker.               │
+│                                                                 │
+│  Imported in config.yaml as: stack_skills.required: [stack:X]   │
+│  Referenced in skill files as: stack:X (e.g., stack:proposal-   │
+│  format)                                                         │
+│                                                                 │
+│  Invoked: by any agent that imports it OR directly by a human   │
+│  in Claude Desktop. Your teammate's budget-checker fits here.   │
+└─────────────────────────────────────────────────────────────────┘
+                            +
+┌─────────────────────────────────────────────────────────────────┐
+│  FINANCE-PLUGIN — from Anthropic's Finance plugin               │
+│  ────────────────────────────────────────────                   │
+│  Domain skills published by Anthropic (or third parties).       │
+│  Examples: finance:variance-analysis, finance:journal-entry,    │
+│  finance:reconciliation, finance:sox-testing.                   │
+│                                                                 │
+│  Imported as: finance_plugin_skills.required: [finance:X]       │
+└─────────────────────────────────────────────────────────────────┘
+                            +
+┌─────────────────────────────────────────────────────────────────┐
+│  GLOBAL UTILITY — office-suite, etc.                            │
+│  ────────────────────────────────────────────                   │
+│  Cross-cutting helpers that every agent uses.                   │
+│  Examples: sop-pdf, sop-pptx, sop-xlsx, sop-docx for producing  │
+│  formatted deliverables.                                         │
+│                                                                 │
+│  Imported as: global_skills: [sop-X, ...]                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Why this matters
+
+The shared layer is the foundational design move that prevents schema drift across agents. When five agents propose journal entries (Controller, Prepay Manager, Bank Recon, crypto-reconciler, Payroll Reviewer) and one agent posts them (QBO Poster), they all need to agree on what a "proposal" looks like. Without a shared skill, each agent describes the schema inline in its own files — and the moment one drifts, the execution-pack contract breaks.
+
+The `stack:proposal-format` skill is the canonical schema. Every proposing agent imports it. Every Poster (QBO, NetSuite, Xero, etc.) reads against it. One file, one source of truth, ten agents in agreement.
+
+### When to hoist
+
+A skill belongs in the shared layer when **all three** are true:
+
+1. **More than one agent invokes it** (actual or imminent, not theoretical).
+2. **The contract is the value** — the skill's job is to enforce a consistent format, schema, or methodology.
+3. **The reasoning is generic** — doesn't depend on one agent's specific identity, schedule, or workflow.
+
+If you find yourself describing the same schema in two agents' skill files, hoist it.
+
+### When to keep agent-private
+
+- The skill depends on one agent's specific operating tempo (Controller's `close-calendar`)
+- The algorithm is specific to one workflow (Bank Recon's `transaction-matching`)
+- Execution mechanics that are intentionally narrow to one agent for security (QBO Poster's `approval-validation`, `post-to-qbo`)
+
+### Human-invoked skills
+
+A useful pattern that often gets missed: shared skills can be invoked directly by a human in Claude Desktop, no agent required. Your teammate's `budget-checker` is exactly this — anyone asks "is Notion in the budget?" and the skill triggers. The same `budget-checker` skill can ALSO be invoked by FP&A Analyst during budget-build, or by AP Watcher when validating an invoice. One skill, three invocation paths (human, FP&A, AP) — that's the leverage.
+
+See [`skills/README.md`](./skills/README.md) for the current shared-skill catalog (9 candidates as of v0.1, with `stack:proposal-format` shipped as the first).
 
 ---
 

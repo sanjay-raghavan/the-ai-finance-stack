@@ -26,6 +26,12 @@ finance_plugin_skills:
   optional:
     - finance:journal-entry-prep    # for monthly amortization JE format
 
+# Shared skills from The AI Finance Stack's skill layer (see /skills/README.md)
+stack_skills:
+  required:
+    - stack:proposal-format         # canonical schema for JE proposals — must follow when writing to ~/finance-data/pending-approvals/
+  optional: []
+
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
 
 skills:

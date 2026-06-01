@@ -111,12 +111,27 @@ For all cases, round per company convention (default: nearest cent).
 
 ### Step 3 — Build the JE proposal
 
-One row per schedule:
+Generate the proposal following the canonical schema in **`stack:proposal-format`** (see [`/skills/proposal-format.md`](../../../skills/proposal-format.md)). Do not redefine the schema inline — the shared skill is the single source of truth for proposal structure, validation rules, and idempotency mechanics.
+
+Amortization-specific specifics:
+
+- `proposal_type: amortization`
+- `auto_reverse: false` — amortization entries are not auto-reversed (the asset is consumed permanently each month)
+- `originating_agent: prepay-manager`
+- `originating_skill: monthly-amortization`
+- `DocNumber` convention: `JE-PREPAY-<YYYY>-<MM>-<NNN>` (sequential within the period)
+- `approver_routing.required_role: controller` for amounts under $10K; `cfo` for amounts at or above $10K
+- `supporting_documents` should reference the schedule file and the original invoice
+
+**Line items per schedule:**
+
 - DR: Expense account from the schedule (with department coding)
 - CR: Prepaid asset account from the schedule
-- Memo: Vendor + period + brief description
+- Description: Vendor + period + brief description
 
-Never aggregate across schedules — each gets its own row for audit clarity. Even two schedules with the same vendor and the same accounts stay as separate rows.
+Never aggregate across schedules — each schedule gets its own proposal for audit clarity. Even two schedules with the same vendor and the same accounts produce separate proposals.
+
+Run all 10 validation rules from `stack:proposal-format` before writing the file. If any rule fails, do not write the proposal — surface to `#prepay-ops` with the specific rule and the math, and halt this schedule's amortization for human resolution.
 
 ### Step 4 — Update schedule statuses
 
