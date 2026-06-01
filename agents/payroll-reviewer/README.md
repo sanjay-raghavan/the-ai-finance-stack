@@ -29,7 +29,11 @@
 
 - **MCPs:** `gusto` (or equivalent payroll MCP) + `slack`; optionally accounting MCP for accrual hand-off, `notion-finance` for the headcount roster
 - **Slack channels:** `#payroll-ops` (private — restrict membership!), `#finance-alerts`
-- **Skills (planned):** `payroll-prereview`, `headcount-cost-tracking`, `bonus-accrual-projection`, `sbc-monitor`, `comp-outlier-flag`
+- **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
+  - **Agent-private** (in `agents/payroll-reviewer/skills/`): `payroll-prereview`, `headcount-cost-tracking`
+  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions` queued; payroll JE proposals will use `stack:proposal-format` in v0.2)_
+  - **Finance plugin skills:** inherited per `config.yaml`
+  - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 
 ---
 

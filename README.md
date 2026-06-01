@@ -51,6 +51,24 @@ The only agents in the Stack permitted to **write** to the general ledger. Every
 
 ---
 
+## Shared Skills
+
+Skills are the **atomic unit of reasoning** in the Stack. Each agent invokes skills from four scopes: **agent-private** (lives in `agents/<name>/skills/`, tightly coupled to that one agent), **stack-shared** (lives in `skills/` at the repo root, imported by multiple agents using `stack:<name>`), **finance-plugin** (from Anthropic's Finance plugin, imported as `finance:<name>`), and **global utility** (cross-cutting helpers like `sop-pdf`, `sop-pptx`).
+
+The shared skill layer is what prevents schema drift across agents — when five agents propose journal entries and one agent posts them, they all need to agree on what a "proposal" looks like. The shared layer is the contract.
+
+| Shared skill | What it standardizes | Status |
+|---|---|---|
+| [`stack:proposal-format`](./skills/proposal-format.md) | Canonical JE proposal schema — the contract holding propose→approve→post together | 🟢 v0.1 — shipped |
+| [`stack:approval-record-format`](./skills/approval-record-format.md) | Canonical approval record schema (approver auth, content hash, Slack ref) | 🟢 v0.1 — shipped |
+| [`stack:slack-conventions`](./skills/slack-conventions.md) | Channel routing, severity emojis, link format, mention rules — every agent's Slack output | 🟢 v0.1 — shipped |
+| `stack:audit-log-entry` | JSONL schema for every agent's audit log | 🔵 v0.2 |
+| `stack:variance-narrative`, `stack:driver-decomposition`, `stack:kpi-snapshot`, `stack:close-packet-format`, `stack:budget-checker` | Five more queued for v0.2 | 🔵 v0.2 |
+
+See [`skills/README.md`](./skills/README.md) for the full architecture, hoist rules, and contribution flow.
+
+---
+
 ## MCP Connectors
 
 Agents are useless without connections to the tools that hold your books. The Stack uses a [four-tier integration pattern](./MCP_INTEGRATION.md) (official MCP → bundled local MCP → Bash wrapper → hosted gateway) so the agents work whether your tools have great official MCPs, admin-gated MCPs, or no MCP at all.

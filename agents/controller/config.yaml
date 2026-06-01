@@ -48,6 +48,14 @@ finance_plugin_skills:
   optional:
     - finance:financial-statements
 
+# ─── Shared skills from The AI Finance Stack's skill layer ──────
+# See /skills/README.md for the full catalog.
+stack_skills:
+  required:
+    - stack:proposal-format         # canonical schema for the JE proposals Controller writes (accruals, recon adjustments)
+    - stack:slack-conventions       # channel routing, severity prefixes, link format
+  optional: []
+
 # ─── Inherited "Global Default" skills ──────────────────────────
 # All agents in The AI Finance Stack inherit these.
 global_skills:

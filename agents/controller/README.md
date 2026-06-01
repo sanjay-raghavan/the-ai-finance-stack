@@ -48,12 +48,14 @@ Optional but recommended:
 - `google-drive` (close-packet archive)
 - `notion-finance` (Finance wiki posts)
 
-### Finance Plugin skills
+### Skills
 
-- `finance:close-management`
-- `finance:journal-entry` + `finance:journal-entry-prep`
-- `finance:reconciliation`
-- `finance:financial-statements` (optional)
+Four scopes — see [`/skills/README.md`](../../skills/README.md):
+
+- **Agent-private** (in `agents/controller/skills/`): `close-calendar`, `accrual-entries`, `reconciliations`
+- **Stack-shared imports:** `stack:proposal-format` (canonical schema for the accrual + recon-adjustment proposals Controller writes), `stack:slack-conventions` (channel routing, severity, link format)
+- **Finance plugin skills:** `finance:close-management`, `finance:journal-entry`, `finance:journal-entry-prep`, `finance:reconciliation`, `finance:financial-statements` (optional)
+- **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 
 ### Slack channels
 

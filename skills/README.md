@@ -55,17 +55,17 @@ A skill should **stay agent-private** when:
 
 ## v0.1 catalog
 
-| Skill | What it standardizes | Used by | Priority |
+| Skill | What it standardizes | Used by | Status |
 |---|---|---|---|
-| [`proposal-format`](./proposal-format.md) | YAML schema for a JE proposal (proposal_id, external_id, content_hash, line items, auto_reverse, reverses_transaction_id) | Controller, Prepay Manager, Bank Recon, crypto-reconciler, Payroll Reviewer — all agents that propose JEs; consumed by QBO Poster | 🔴 Critical — the propose→approve→post contract depends on it. **Shipped v0.1.** |
-| `approval-record-format` | YAML schema for an approval record (approved_by, content_hash, approval_method, slack_message_ref) | QBO Poster reads; future approval handler writes | 🔴 Critical | 🔵 v0.2 |
-| `slack-conventions` | Channel routing (alerts vs ops vs approvals), severity emojis, link format, mention rules | Every agent that posts to Slack | 🟠 High | 🔵 v0.2 |
-| `audit-log-entry` | JSONL schema for the audit log every agent writes | Every agent that performs material actions | 🟠 High | 🔵 v0.2 |
-| `variance-narrative` | Template for 1-3 sentence driver-aware variance commentary | FP&A, IR, Treasury, Controller | 🟡 Medium | 🔵 v0.2 |
-| `driver-decomposition` | Math + format for Volume × Rate × Mix (revenue) and Headcount × Cost-per-Head (OpEx) | FP&A, IR, Treasury | 🟡 Medium | 🔵 v0.2 |
-| `kpi-snapshot` | Canonical KPI set + extraction format (revenue growth, gross margin, burn, runway, NRR, CAC, take rate) | FP&A, IR, Treasury | 🟡 Medium | 🔵 v0.2 |
-| `close-packet-format` | The structure of Controller's close-packet artifact | Controller produces; FP&A + IR consume | 🟡 Medium | 🔵 v0.2 |
-| `budget-checker` | Query a budget XLSX for vendors, GL codes, employees, categories | Available to humans + any agent that needs to validate against budget | 🟢 Useful | 🔵 v0.2 |
+| [`proposal-format`](./proposal-format.md) | YAML schema for a JE proposal (proposal_id, external_id, content_hash, line items, auto_reverse, reverses_transaction_id) | Controller, Prepay Manager, Bank Recon, crypto-reconciler, Payroll Reviewer — all agents that propose JEs; consumed by QBO Poster | 🟢 v0.1 — shipped |
+| [`approval-record-format`](./approval-record-format.md) | YAML schema for an approval record (approved_by, content_hash, approval_method, slack_message_ref) | QBO Poster reads; future approval handler writes | 🟢 v0.1 — shipped |
+| [`slack-conventions`](./slack-conventions.md) | Channel routing (alerts vs ops vs approvals), severity emojis, link format, mention rules | Every agent that posts to Slack | 🟢 v0.1 — shipped |
+| `audit-log-entry` | JSONL schema for the audit log every agent writes | Every agent that performs material actions | 🔵 v0.2 — queued |
+| `variance-narrative` | Template for 1-3 sentence driver-aware variance commentary | FP&A, IR, Treasury, Controller | 🔵 v0.2 — queued |
+| `driver-decomposition` | Math + format for Volume × Rate × Mix (revenue) and Headcount × Cost-per-Head (OpEx) | FP&A, IR, Treasury | 🔵 v0.2 — queued |
+| `kpi-snapshot` | Canonical KPI set + extraction format (revenue growth, gross margin, burn, runway, NRR, CAC, take rate) | FP&A, IR, Treasury | 🔵 v0.2 — queued |
+| `close-packet-format` | The structure of Controller's close-packet artifact | Controller produces; FP&A + IR consume | 🔵 v0.2 — queued |
+| `budget-checker` | Query a budget XLSX for vendors, GL codes, employees, categories | Available to humans + any agent that needs to validate against budget | 🔵 v0.2 — queued |
 
 ---
 

@@ -30,7 +30,11 @@
 
 - **MCPs:** at least one banking MCP (`mercury` / `modern-treasury` / `plaid`) + `slack`; optionally accounting MCP for opening balances, `stripe` / `paypal` / `square` if PSP-aware
 - **Slack channels:** `#treasury-ops`, `#finance-alerts`
-- **Skills (planned):** `cash-position-snapshot`, `13-week-projection`, `runway-calc`, `merchant-float-separation`, `covenant-watch`
+- **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
+  - **Agent-private** (in `agents/treasury/skills/`): `cash-position-snapshot`, `thirteen-week-projection`, `runway-calc`
+  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions`, `stack:kpi-snapshot`, `stack:driver-decomposition` queued for v0.2 hoist)_
+  - **Finance plugin skills:** inherited per `config.yaml`
+  - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 
 ---
 

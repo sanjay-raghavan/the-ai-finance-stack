@@ -32,7 +32,11 @@
 
 - **MCPs:** accounting MCP + `slack`; optionally `metabase`, `cubedev`, `googlesheets` for the model file
 - **Slack channels:** `#fpa-ops`, `#finance-alerts`
-- **Skills:** `budget-build`, `variance-decomposition`, `forecast-refresh`, `scenario-flex` (`kpi-snapshot` and `what-if-analysis` planned for v0.2)
+- **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
+  - **Agent-private** (in `agents/fpa-analyst/skills/`): `budget-build`, `variance-decomposition`, `forecast-refresh`, `scenario-flex`
+  - **Stack-shared imports:** `stack:slack-conventions` (channel routing for `#fpa-ops`, `#fpa-budget`, `#finance-alerts`). `stack:variance-narrative`, `stack:driver-decomposition`, `stack:kpi-snapshot`, `stack:close-packet-format`, `stack:budget-checker` queued for v0.2 hoist.
+  - **Finance plugin skills:** `finance:variance-analysis`, `finance:financial-statements`
+  - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 
 ---
 

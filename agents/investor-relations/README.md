@@ -30,7 +30,11 @@
 
 - **MCPs:** accounting MCP + `slack`; optionally `notion-finance` (for the investor list / investor pack), `gmail` (drafts the update for review)
 - **Slack channels:** `#ir-ops`, `#finance-alerts`
-- **Skills (planned):** `investor-update-draft`, `board-prereader`, `kpi-watch`, `investor-meeting-brief`, `fundraise-comp-set`
+- **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
+  - **Agent-private** (in `agents/investor-relations/skills/`): `investor-update-draft`, `board-prereader`, `kpi-watch`
+  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions`, `stack:kpi-snapshot`, `stack:variance-narrative` queued for v0.2 hoist)_
+  - **Finance plugin skills:** inherited per `config.yaml`
+  - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 
 ---
 

@@ -42,6 +42,13 @@ finance_plugin_skills:
     - finance:variance-analysis
     - finance:financial-statements
 
+# ─── Shared skills from The AI Finance Stack's skill layer ──────
+# See /skills/README.md for the full catalog.
+stack_skills:
+  required:
+    - stack:slack-conventions       # channel routing for #fpa-ops, #fpa-budget, #finance-alerts
+  optional: []
+
 # ─── Inherited "Global Default" skills ──────────────────────────
 global_skills:
   - sop-pdf

@@ -68,6 +68,15 @@ These files are the canonical truth about what's connected. The agent halts if t
 - `#crypto-ops` — daily summaries, monthly close artifact, multi-sig pending visibility
 - `#finance-alerts` — unexplained movements, cost-basis discrepancies, custody alerts (shared with the core agents)
 
+### Skills
+
+Four scopes — see [`/skills/README.md`](../../skills/README.md):
+
+- **Agent-private** (in `agents/crypto-reconciler/skills/`): `wallet-recon`, `gas-and-fees-tracking`
+- **Stack-shared imports:** _(none in v0.1 — `stack:proposal-format` for crypto-close JE proposals and `stack:slack-conventions` queued for v0.2 hoist)_
+- **Finance plugin skills:** inherited per `config.yaml`
+- **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
+
 ---
 
 ## Schedule

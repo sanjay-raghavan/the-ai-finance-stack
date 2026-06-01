@@ -30,7 +30,11 @@
 
 - **MCPs:** CRM (`hubspot`) + billing MCP (`stripe`, `chargebee`, `salesforce` when added) + `slack`; optionally accounting MCP
 - **Slack channels:** `#revops-ops`, `#finance-alerts`
-- **Skills (planned):** `commission-run`, `arr-reconciliation`, `deal-desk-flag`, `quota-scorecard`, `pipeline-hygiene`
+- **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
+  - **Agent-private** (in `agents/revenue-ops/skills/`): `commission-run`, `arr-reconciliation`
+  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions` queued; commission-accrual proposals will use `stack:proposal-format` in v0.2)_
+  - **Finance plugin skills:** inherited per `config.yaml`
+  - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 
 ---
 

@@ -29,7 +29,11 @@
 
 - **MCPs:** accounting MCP + `slack`; optionally `stripe`, `chargebee`, `gmail`, `paypal`, `square`
 - **Slack channels:** `#ar-ops`, `#finance-alerts`
-- **Skills (planned):** `aging-analysis`, `collection-drafts`, `deal-line-validation`, `cohort-metrics`
+- **Skills** (four scopes — see [`/skills/README.md`](../../skills/README.md)):
+  - **Agent-private** (in `agents/ar-follow-up/skills/`): `aging-analysis`, `collection-drafts`
+  - **Stack-shared imports:** _(none in v0.1 — `stack:slack-conventions` queued for v0.2 hoist; `stack:proposal-format` for write-off adjustments queued)_
+  - **Finance plugin skills:** inherited per `config.yaml`
+  - **Global utility:** `sop-pdf`, `sop-pptx`, `sop-xlsx`, `sop-docx`
 
 ---
 

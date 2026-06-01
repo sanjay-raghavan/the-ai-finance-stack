@@ -27,6 +27,15 @@ finance_plugin_skills:
     - finance:journal-entry                  # JE structure validation
   optional: []
 
+# Shared skills from The AI Finance Stack's skill layer (see /skills/README.md)
+# QBO Poster is the canonical consumer of both halves of the propose->approve->post contract.
+stack_skills:
+  required:
+    - stack:proposal-format                  # canonical schema for the proposals being validated
+    - stack:approval-record-format           # canonical schema for the approval records being read
+    - stack:slack-conventions                # channel routing, severity prefixes, link format
+  optional: []
+
 global_skills: [sop-pdf, sop-pptx, sop-xlsx, sop-docx]
 
 skills:
