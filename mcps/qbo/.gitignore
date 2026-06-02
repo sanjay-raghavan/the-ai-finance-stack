@@ -1,0 +1,31 @@
+# Credentials — NEVER commit
+.env
+*.env
+credentials/
+qbo.json
+
+# Python build
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tests
+.pytest_cache/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store

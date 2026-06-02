@@ -2,9 +2,34 @@
 
 Three layers, each owning a distinct concern. They compose into a complete Finance agent system that runs locally on your own hardware and is shareable with anyone running an MCP-compatible AI client.
 
+A **customization layer** (`customization/`) sits orthogonal to the three vertical layers — it's the per-org grounding that turns generic agents into ones that understand your specific chart of accounts, non-GAAP definitions, output templates, and writing voice. See `customization-stub/README.md` for the full spec; the short version is below.
+
 The agent inventory itself follows an **extension model** — universal core agents, optional industry packs, an execution pack for write-capable agents, and a shared ERP-specific skill library — described after the three-layer architecture below.
 
 A fourth concern — **how agents talk to your actual financial systems** — is covered in [MCP_INTEGRATION.md](./MCP_INTEGRATION.md). The short version: the Stack uses a four-tier integration pattern (official MCP → bundled local MCP → Bash wrapper → hosted gateway) so the agents work even when the official MCP for a tool is admin-gated or doesn't exist.
+
+---
+
+## The Customization Layer (`customization/`)
+
+Without `customization/`, the agents are generic. With it, they understand your books.
+
+The layer holds three kinds of org-specific knowledge:
+
+1. **`reference/`** — what the agents *know* about your books: tagged chart of accounts, vendor map, customer map, entity structure, non-GAAP rules (declarative YAML), closed periods, ATB snapshots.
+2. **`templates/`** — what your outputs *look like*: board deck, exec update, IR memo, variance package, close packet.
+3. **`voice/`** — how your writing *sounds*: CEO update style, investor-letter style.
+
+Every agent in the Stack agrees to a four-rule contract (see `customization-stub/AGENT_CONTRACT.md`):
+
+1. Read `customization/` before acting
+2. Map natural language to the reference layer *first*, then call MCPs
+3. Never write to `customization/` without explicit human approval
+4. Surface gaps; don't paper over them
+
+Users populate `customization/` either by hand (using stubs in `customization-stub/`) or interactively via the `setup-org` skill. The folder is gitignored by default so books never get committed.
+
+The non-GAAP piece is fully declarative: `customization/reference/non-gaap-rules.yaml` defines what your org excludes (SBC, restructuring, crypto MTM, fair-value revaluation — whatever applies) and how the bridge is presented (side-by-side, single-pnl-with-adjustments-block, bridge-only). The same `finance-view-switch` skill works for any industry because the rules live in config, not code.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -373,6 +398,159 @@ Agents are useless without connections to the tools that hold your books. The St
 Agents are agnostic to which tier is in use. They declare MCP names in `config.yaml` (e.g., `quickbooks`, `slack`) and the user's Claude Desktop config maps each name to a specific server. Switching from Tier 4 (Smithery-hosted QBO) to Tier 2 (local bundled QBO MCP) is a two-line config edit — no agent code changes.
 
 This is what makes the Stack work for non-admin QBO users, for organizations with strict data-residency requirements, and for tools where no vendor MCP exists yet. See [MCP_INTEGRATION.md](./MCP_INTEGRATION.md) for the full hierarchy, the bundled MCP catalog, and the contribution flow.
+
+---
+
+## How agents relate to each other
+
+Three distinct relationship patterns show up in agent systems. The Stack uses one of them today and will add a second in v0.3. Conflating them is one of the most common architectural mistakes; this section names them explicitly.
+
+### Peer agents (the Stack model)
+
+Independent agents that run on their own schedules and communicate by reading each other's outputs. No agent owns another. The relationships are temporal (Controller produces close packet at Day 3; FP&A reads it at Day 4) and file-based (`~/finance-data/closes/<period>/status-report.md`), not call-based.
+
+```
+Controller ──► closes/2026-05/status-report.md ──► FP&A Analyst
+                                                ──► IR Agent
+                                                ──► Treasury (reads cash)
+```
+
+Why peers, not parent/child:
+- Each agent has its own schedule, materiality thresholds, escalation paths
+- Failures are isolated — if FP&A breaks, Controller still closes the books
+- Each agent's audit log is independent — easier for SOX
+- A user can install any subset and the installed agents still work
+
+This is the model the Stack ships with in v0.1/v0.2.
+
+### Sub-agents (intra-task fan-out — v0.3 candidate)
+
+A single agent spawns short-lived helpers to do parallel work within one of its own tasks. The parent has a goal ("complete the reconciliations pass"); the sub-agents have bounded sub-tasks ("reconcile the BoA operating account", "reconcile AR aging vs. subledger"). Each sub-agent has its own isolated context, returns a report, and exits. The parent synthesizes.
+
+```
+Controller (reconciliations pass)
+    ├─► sub-agent: bank-rec(BoA operating)
+    ├─► sub-agent: bank-rec(Mercury)
+    ├─► sub-agent: AR-rec
+    ├─► sub-agent: AP-rec
+    └─► sub-agent: intercompany-rec
+                              ↓
+                  Controller synthesizes → reconciliations.md
+```
+
+When sub-agents make sense:
+- A task naturally fans out into parallelizable sub-tasks
+- Each sub-task has a focused context that would pollute the parent's context if inlined
+- The work would otherwise blow through a single agent's context budget
+- Speed matters (sub-agents run in parallel)
+
+When sub-agents *don't* make sense:
+- The work is genuinely sequential (later steps depend on earlier ones)
+- Coordination overhead exceeds parallelization win
+- The user needs to see and approve each step (sub-agents are opaque to humans by design)
+
+The Stack will introduce sub-agents in v0.3 starting with Controller's reconciliations pass. See `docs/v0.3-controller-fanout.md` for the design sketch.
+
+### Parent/child orchestration (not used in the Stack)
+
+A long-lived parent agent owns a queue of work and dispatches it to specialized children that report status back over time. This is closer to a workflow engine than to the Stack's pattern. It's the right shape for high-frequency event-driven systems (incident response, customer support routing) — not for finance work, which is more time-boxed and audit-driven.
+
+The Stack deliberately avoids this pattern. If you find yourself wanting it, you probably want either (a) a real workflow engine like Temporal, or (b) the peer-agent pattern with a scheduler that fires the right agent at the right time.
+
+### Rules of thumb
+
+- **Default to peers.** It's the only pattern that gives each agent its own audit log, schedule, and failure boundary. Use this unless you have a specific reason not to.
+- **Reach for sub-agents when context budget is the bottleneck.** Not when "I want parallelism" — peers already give you parallelism across time. Sub-agents are for parallelism *within a single task* that's hitting context limits.
+- **Avoid parent/child.** Finance work is monthly-cyclical and audit-trailed. Workflow engines are overkill; peers handle the cadence naturally.
+
+---
+
+## Scaling from one human to a whole finance team
+
+The Stack ships with single-user setup in mind (the LinkedIn launch persona is a Finance Leader running it for themselves). But real finance teams have multiple humans interacting with the same set of agents. The architecture handles this cleanly without changing how agents run.
+
+### One execution surface, team-wide interaction
+
+The agents only ever run in **one place** — the dedicated laptop. They never run on each team member's machine.
+
+What changes when you scale to a team is the *interaction surface*, not the *execution surface*:
+
+```
+                          DEDICATED LAPTOP (1 machine)
+                          ─────────────────────────────
+                          Agents run on schedule
+                          ┃
+                          ┃ posts to
+                          ▼
+              ┌──────────── SHARED SLACK ────────────┐
+              │  #finance-ops · #finance-approvals    │
+              │  #fpa-ops · #treasury-ops · etc.      │
+              └──────────────────────────────────────┘
+               ▲          ▲          ▲          ▲
+            Sanjay     Yuliia    Accountant    others
+            (Mac)      (PC)      (Mac/PC)      …
+```
+
+Each team member only needs Slack access. They read posts, approve JE proposals by typing `/approve <id>`, DM agents for ad-hoc questions (`@treasury what's our cash position?`), and post inline corrections.
+
+No software installs. No agent runtime. No machine setup. The dedicated laptop is operationally invisible to them — they only see the agents' work in Slack.
+
+### Multi-user approvals
+
+QBO Poster's 8-check validation includes an **authorized-approver** check. Each JE type declares which roles or specific Slack users are allowed to approve it; only `/approve` typed by an authorized person passes validation.
+
+This lives in `customization/reference/approval-policy.yaml`:
+
+```yaml
+approval_policy:
+  - je_type: payroll
+    approvers: [yuliia@matterlabs.dev]
+    threshold_usd: 200000
+
+  - je_type: treasury_movement
+    approvers: [sanjay@matterlabs.dev]
+    threshold_usd: 25000  # any amount above requires CFO
+
+  - je_type: standard_close_accrual
+    approvers: [accountant@matterlabs.dev, sanjay@matterlabs.dev]
+    threshold_usd: 10000
+
+  - je_type: intercompany
+    approvers: [sanjay@matterlabs.dev]
+    require_dual_approval: true
+```
+
+The audit log captures who approved what, with what content hash, when. Every entry is attributable to a specific human.
+
+### Optional: ad-hoc Claude Desktop access per team member
+
+Anyone on the team who wants to query agents *outside* Slack can install Claude Desktop on their own machine and add the registry MCP to their config. Works identically on Mac and Windows — the registry endpoint and MCP shape are OS-agnostic.
+
+This is useful for impromptu queries in meetings ("@fpa-analyst, what's our burn rate run-rate?"), but isn't required for everyday participation. Slack covers 95% of interactions.
+
+### The customization layer in a team
+
+The reference layer (`customization/reference/chart-of-accounts.xlsx`, `non-gaap-rules.yaml`, `vendor-map.xlsx`, etc.) is the source of truth for the org. Team members shouldn't edit it freely or you lose consistency.
+
+Two workflow patterns:
+
+**Pattern A — Gatekeeper (recommended for v0.2).** The customization layer lives in a private git repo. Team members propose changes via PR or by Slack-asking the owner. The owner reviews, merges, pulls to the dedicated laptop. Slow but fully auditable.
+
+**Pattern B — Slack-driven updates (v0.3+).** An `update-reference` agent watches `#finance-ops` for messages like `@finance-ops tag vendor "Hetzner Online GmbH" as Cloud Infrastructure`, drafts a PR to the customization repo, awaits approval, pulls. Faster but requires the agent build-out.
+
+Start with A. Graduate to B once the team has rhythm.
+
+### What this means in practice
+
+| Team member | Setup needed | Daily interaction |
+|---|---|---|
+| **Owner** (Sanjay) | Dedicated laptop running agents; manages customization layer | 30 min/close + maintenance |
+| **Backup operator** | Read access to customization repo; SSH/RDP access to dedicated laptop for emergencies | Step in when owner is out |
+| **Other approvers** (Yuliia, accountant, etc.) | Just Slack | Approve proposals in their authority via `/approve` |
+| **Read-only consumers** | Just Slack | Read close packets, variance, IR drafts |
+| **Anyone wanting ad-hoc queries** | Optionally: Claude Desktop + registry MCP on their own laptop | DM agents for impromptu questions |
+
+The Stack scales from "one person automating their own work" to "a 5-person finance team with declarative approval policy" without changing the agent runtime. The dedicated laptop stays the only place where execution happens.
 
 ---
 

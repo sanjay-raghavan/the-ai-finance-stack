@@ -1,6 +1,8 @@
-# Setup — The Dedicated Laptop (Tier 5)
+# Setup — The Dedicated Laptop, Mac Edition (Tier 5)
 
 How to turn a Mac you already have into a 24/7 Finance agent runtime. Estimated time: 90 minutes the first time, then it just runs.
+
+> **On Windows?** See [`SETUP_DEDICATED_LAPTOP_WINDOWS.md`](./SETUP_DEDICATED_LAPTOP_WINDOWS.md) for the parallel guide (Task Scheduler instead of launchd; `%APPDATA%` instead of `~/Library`; PowerShell instead of zsh).
 
 This is the **Tier 5** deployment from the *AI-Powered Finance* deployment framework — your own hardware, your own data, no cloud bills, no third-party risk on the agent runtime itself.
 

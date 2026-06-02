@@ -448,6 +448,22 @@ export default {
       });
     }
 
+    // OAuth callback proxy for Intuit Production. Intuit requires HTTPS for
+    // production redirect URIs, but desktop apps need to capture the callback
+    // locally on the user's machine. We register this HTTPS endpoint with
+    // Intuit and 302-redirect to http://localhost:8765/callback so the user's
+    // local MCP server can capture the auth code transparently.
+    //
+    // This is the standard "OAuth proxy" pattern for desktop apps that need
+    // to satisfy HTTPS-redirect policies. The query params (code, state,
+    // realmId) pass through unchanged.
+    if (url.pathname === "/oauth-callback") {
+      return Response.redirect(
+        `http://localhost:8765/callback${url.search}`,
+        302,
+      );
+    }
+
     return new Response("Not found.", { status: 404 });
   },
 };

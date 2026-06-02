@@ -12,7 +12,7 @@ Eight MCPs planned for v0.2. Each is a small Python server (~200–400 lines) th
 
 | MCP | Tools served | Used by agents | Status |
 |-----|-------|----------------|--------|
-| [`qbo/`](./qbo/) | QuickBooks Online | Controller, Prepay Manager, Bank Recon, AP Watcher, AR Follow-Up, QBO Poster | 🔵 v0.2 — scaffold pending |
+| [`qbo/`](./qbo/) | QuickBooks Online (12 read-only tools) | Controller, Prepay Manager, Bank Recon, AP Watcher, AR Follow-Up, QBO Poster | 🟢 v0.1 — shipped (read-only; writes v0.2) |
 | [`bill-com/`](./bill-com/) | BILL (AP, AR, Spend & Expense) | AP Watcher, AR Follow-Up, Controller | 🔵 v0.2 — scaffold pending |
 | [`ramp/`](./ramp/) | Ramp (cards + bills) | AP Watcher, Controller | 🔵 v0.2 — scaffold pending |
 | [`mercury/`](./mercury/) | Mercury (banking) | Treasury, Bank Recon | 🔵 v0.2 — scaffold pending |
