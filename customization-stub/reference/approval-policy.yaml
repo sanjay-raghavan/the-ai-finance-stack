@@ -48,23 +48,26 @@ approval_policy:
     threshold_usd: 10000
     above_threshold_approvers: [controller@yourcompany.com]
 
-  # Standard month-end accruals (Controller's output)
+  # Standard month-end accruals (Controller agent's output during close process)
+  # Close is a process owned by controllership, not a separate function.
   - je_type: standard_close_accrual
-    approvers: [close-lead@yourcompany.com, controller@yourcompany.com]
+    approvers: [controller@yourcompany.com]
     threshold_usd: 10000
-    above_threshold_approvers: [controller@yourcompany.com]
+    above_threshold_approvers: [controller@yourcompany.com, cfo@yourcompany.com]
 
   # Prepaid amortization (Prepay Manager's output)
   - je_type: prepaid_amortization
-    approvers: [close-lead@yourcompany.com]
+    approvers: [controller@yourcompany.com]
     threshold_usd: 25000
     above_threshold_approvers: [controller@yourcompany.com]
 
-  # Bank reconciliation adjustments (Bank Recon's output)
+  # Bank reconciliation adjustments (Bank Recon agent's output)
+  # Bank recon usually lives in accounting/controllership; some orgs assign
+  # it to treasury — adjust the approver line below if that's your setup.
   - je_type: bank_reconciliation_adjustment
-    approvers: [bank-recon-lead@yourcompany.com, controller@yourcompany.com]
+    approvers: [controller@yourcompany.com]
     threshold_usd: 1000
-    above_threshold_approvers: [controller@yourcompany.com]
+    above_threshold_approvers: [controller@yourcompany.com, cfo@yourcompany.com]
 
   # Treasury / cash movements
   - je_type: treasury_movement
@@ -100,14 +103,20 @@ approval_policy:
     approvers: [controller@yourcompany.com, cfo@yourcompany.com]
     require_dual_approval: true
 
-# ─── Notes for small teams ─────────────────────────────────────────────
-# If one person fills several roles (common for a 1-3 person finance team),
-# just put the same email under multiple je_type blocks. Example:
+# ─── Notes on roles ─────────────────────────────────────────────────────
+# The role placeholders (ap-lead, ar-lead, billing-lead, payroll-lead,
+# treasury-lead, controller, cfo) are function-aligned. Map them to your
+# team's real emails. If one person fills several roles (common for a 1-3
+# person finance team), just use the same email under multiple je_type
+# blocks. Example: in a small team, `controller@yourcompany.com` may also
+# be the only treasury-lead and bank-recon owner; just put their email in
+# all three places.
 #
-#   close-lead@yourcompany.com = controller@yourcompany.com = the same human
-#
-# The approver-check just looks at the email list; it doesn't care if two
-# placeholders resolve to the same person.
+# "Monthly close" is NOT a function in this taxonomy — it's a process
+# orchestrated by the Controller (agent) and approved by the controller
+# (human). Accruals, prepays, and bank-recon adjustments produced during
+# the close all route to `controller@yourcompany.com`, not a separate
+# close-lead role.
 
 # ─── How escalation works ──────────────────────────────────────────────
 # If a proposal's amount is *above* the threshold, the regular approvers

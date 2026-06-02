@@ -486,10 +486,13 @@ What changes when you scale to a team is the *interaction surface*, not the *exe
               │  #finance-ops · #finance-approvals    │
               │  #fpa-ops · #treasury-ops · etc.      │
               └──────────────────────────────────────┘
-               ▲          ▲          ▲          ▲
-            Owner    AP lead   AR / close   Treasury
-                                lead         lead
-            (Mac)    (PC)       (Mac/PC)    …
+               ▲              ▲           ▲           ▲
+            Controller     AP lead     AR lead     Treasury lead
+            (stack owner;     ↓           ↓             ↓
+            also approves   approves    approves     approves
+            ALL close-      AP JEs      AR JEs       treasury JEs
+            process JEs)
+            (Mac)          (PC)        (Mac/PC)     …
 ```
 
 Each team member only needs Slack access. They read posts, approve JE proposals by typing `/approve <id>`, DM agents for ad-hoc questions (`@treasury what's our cash position?`), and post inline corrections.
@@ -524,19 +527,19 @@ approval_policy:
     approvers: [billing-lead@yourcompany.com]
     threshold_usd: 10000
 
-  # Standard month-end accruals
+  # Standard month-end accruals (close-process JE; routes to controller)
   - je_type: standard_close_accrual
-    approvers: [close-lead@yourcompany.com, controller@yourcompany.com]
+    approvers: [controller@yourcompany.com]
     threshold_usd: 10000
 
-  # Prepaid amortization (Prepay Manager output)
+  # Prepaid amortization (Prepay Manager output during close)
   - je_type: prepaid_amortization
-    approvers: [close-lead@yourcompany.com]
+    approvers: [controller@yourcompany.com]
     threshold_usd: 25000
 
-  # Bank reconciliation adjustments
+  # Bank reconciliation adjustments (usually controllership; sometimes treasury)
   - je_type: bank_reconciliation_adjustment
-    approvers: [bank-recon-lead@yourcompany.com, controller@yourcompany.com]
+    approvers: [controller@yourcompany.com]
     threshold_usd: 1000
 
   # Treasury / large outflows
@@ -555,7 +558,9 @@ approval_policy:
     require_dual_approval: true
 ```
 
-The role placeholders (`ap-lead`, `ar-lead`, `close-lead`, etc.) are aligned to typical finance-function ownership. Map them to actual emails in your `customization/reference/approval-policy.yaml`. Small finance teams may have one person filling several roles — that's fine; just list the same email under multiple `je_type` blocks.
+The role placeholders (`ap-lead`, `ar-lead`, `billing-lead`, `payroll-lead`, `treasury-lead`, `controller`, `cfo`) are aligned to ongoing finance functions. Monthly close is **not** a function in this taxonomy — it's a process orchestrated by the Controller agent, with the human controller as approver. Accruals, prepays, and bank-recon adjustments produced during close all route to `controller@yourcompany.com`. Bank recon usually lives in controllership; some orgs assign it to treasury — adjust the line in your policy file if that fits your setup.
+
+Map placeholders to actual emails in your `customization/reference/approval-policy.yaml`. Small finance teams may have one person filling several roles — that's fine; just list the same email under multiple `je_type` blocks.
 
 The audit log captures who approved what, with what content hash, when. Every entry is attributable to a specific human.
 
@@ -583,7 +588,7 @@ Start with A. Graduate to B once the team has rhythm.
 |---|---|---|
 | **Stack owner** | Dedicated laptop running agents; manages customization layer | 30 min/close + maintenance |
 | **Backup operator** | Read access to customization repo; SSH/RDP access to dedicated laptop for emergencies | Step in when owner is out |
-| **Function leads** (AP, AR, invoicing, accruals, prepays, bank recon, payroll, treasury) | Just Slack | Approve proposals in their function's authority via `/approve` |
+| **Function leads** (AP, AR / Billing, Payroll, Treasury) and the **Controller** who owns the monthly close process | Just Slack | Approve proposals in their function's or close-process authority via `/approve` |
 | **Read-only consumers** | Just Slack | Read close packets, variance reports, IR drafts |
 | **Anyone wanting ad-hoc queries** | Optionally: Claude Desktop + registry MCP on their own laptop | DM agents for impromptu questions |
 
