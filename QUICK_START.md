@@ -4,8 +4,8 @@ The fastest path from "I read about The AI Finance Stack" to "Controller is runn
 
 There are **two install paths**. Pick the one that matches where you are.
 
-- **Path A — "I just want to try one agent"** — install Controller in Claude Desktop, point it at sample data, see what it does. ~15 minutes. No dedicated laptop needed.
-- **Path B — "I want the full setup, agents running on schedule"** — set up a dedicated Mac, install all 8 agents, schedule them with launchd. ~2 hours the first time. See [`SETUP_DEDICATED_LAPTOP.md`](./SETUP_DEDICATED_LAPTOP.md).
+- **Path A — "I just want to try one agent"** — install Controller in Claude Desktop, point it at sample data, see what it does. ~15 minutes. No dedicated runtime needed.
+- **Path B — "I want the full setup, agents running on schedule"** — set up a dedicated runtime (spare laptop, Mac mini, NUC, or VPS), install all 12 agents, schedule them. ~2 hours the first time. See [`SETUP_DEDICATED_LAPTOP.md`](./SETUP_DEDICATED_LAPTOP.md) for Mac, [`SETUP_DEDICATED_LAPTOP_WINDOWS.md`](./SETUP_DEDICATED_LAPTOP_WINDOWS.md) for Windows; the same patterns work on a Mac mini, NUC, or Hetzner/Lightsail VPS (Linux guide planned).
 
 This guide covers Path A. Start here; graduate to Path B when you're ready.
 
@@ -101,6 +101,41 @@ chmod 600 ~/.finance-stack/secrets.env
 
 ---
 
+## Step 3.5 — Customize the Stack for your org (`setup-org`)
+
+Before any agent will produce useful output, you need to tell the Stack about your company — your chart of accounts, your non-GAAP definitions, your output templates, your writing voice. This lives in a `customization/` folder at the repo root.
+
+You have two options:
+
+### Recommended: run the `setup-org` skill
+
+In Claude Desktop or Claude Code, ask:
+
+> Run the setup-org skill.
+
+It walks you through a ~30 minute interactive setup:
+1. Organization profile (entities, fiscal year, base currency, archive location)
+2. Chart of accounts (upload from QBO/NetSuite/Xero, tag in batches)
+3. Non-GAAP rules (in plain English; we translate to YAML)
+4. Templates (upload board deck, exec update, IR memo)
+5. Voice samples (paste 2-3 short excerpts of writing you want agents to match)
+
+Saves everything to `customization/` (gitignored). You can stop at any step — partial customization is fine, agents work with whatever exists.
+
+### Or: fill in by hand
+
+Copy `customization-stub/` to `customization/` and fill in the files. Each subfolder has its own README explaining the expected format.
+
+```bash
+cp -R customization-stub customization
+```
+
+Then start with `customization/org.yaml`, then `customization/reference/chart-of-accounts.xlsx`. The full layout is documented in `customization-stub/README.md`.
+
+> **Skip this step?** The agents will run in *generic mode* and post warnings to `#finance-alerts` saying you should set up customization. Fine for kicking the tires; not fine for production use.
+
+---
+
 ## Step 4 — Connect at least one MCP for the agent to use
 
 Controller needs **one accounting MCP** (QuickBooks, Xero, or NetSuite) and **Slack** (or nothing — you can run without notifications for the first test).
@@ -192,8 +227,8 @@ If `#finance-ops` doesn't exist yet in your Slack, create it now (or change the 
 
 You've now got Controller running interactively (Path A). To graduate to **always-on** (Path B):
 
-- Set up a dedicated Mac via [`SETUP_DEDICATED_LAPTOP.md`](./SETUP_DEDICATED_LAPTOP.md)
-- Configure launchd to run Controller on schedule (Day 1 / 2 / 3 of close)
+- Pick a dedicated runtime — a spare Mac or Windows laptop you already own, a Mac mini or NUC purchased for the purpose, or a VPS (Hetzner, Lightsail, DigitalOcean). Setup guides: [`SETUP_DEDICATED_LAPTOP.md`](./SETUP_DEDICATED_LAPTOP.md) (Mac), [`SETUP_DEDICATED_LAPTOP_WINDOWS.md`](./SETUP_DEDICATED_LAPTOP_WINDOWS.md) (Windows); Linux/VPS guide planned.
+- Configure launchd (Mac) / Task Scheduler (Windows) / systemd timers (Linux) to run Controller on schedule (Day 1 / 2 / 3 of close)
 - Install additional Stack agents (AP Watcher, FP&A Analyst, Treasury, etc.)
 - Connect their respective MCPs
 

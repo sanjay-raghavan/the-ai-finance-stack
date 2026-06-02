@@ -188,14 +188,25 @@ See [`skills/README.md`](./skills/README.md) for the current shared-skill catalo
 
 Your dedicated machine. The Tier 5 deployment from the *AI-Powered Finance* deployment framework.
 
-**Hardware:** An old MacBook or Mac mini you already have. Newer Apple Silicon is ideal (low power draw, runs headless, sits on a shelf for years) but anything that can run Claude Code works.
+**Hardware options** — any always-on machine works. Pick by budget and operational comfort:
 
-**Software stack:**
+| Option | One-time cost | Ongoing cost | Tradeoffs |
+|---|---|---|---|
+| **Spare laptop you own** | $0 | electricity | Cheapest. Set "sleep when plugged in: never" and forget. Mac and Windows both supported. |
+| **Mac mini (purpose-built)** | ~$600 new, less used | electricity | Quiet, low-power, fits in a closet, runs for years. Ideal if you want a proper dedicated box without paying monthly. |
+| **Intel NUC or similar mini-PC** | ~$300–500 | electricity | Same idea, runs Linux or Windows. Cheaper than Mac mini if you prefer non-Apple. |
+| **Virtual server (Hetzner / Lightsail / DigitalOcean)** | $0 | ~$5–15/mo | Always-on without owning hardware. Linux variant; uses systemd timers instead of launchd. No physical machine to maintain. |
+
+The agents don't care where they run. They need: stable network, ~2 GB RAM at peak, your OAuth grants to QBO / Slack / banking MCPs, and persistent disk for `customization/` and `~/finance-data/`. Setup guides today cover Mac and Windows; a Linux/VPS guide is planned.
+
+Common documentation shorthand: when the docs say "the dedicated laptop", read it as "the dedicated runtime — laptop, Mac mini, NUC, or VPS, whichever you picked."
+
+**Software stack** (Mac example; substitute equivalents for Windows or Linux):
 - macOS (latest)
 - Claude Code (the developer-facing CLI)
 - The AI Finance Stack repo cloned to `~/the-ai-finance-stack/`
 - A `~/finance-data/` folder where agents read and write
-- launchd plists or cron jobs scheduling each agent
+- launchd plists (Mac) / Task Scheduler (Windows) / systemd timers (Linux) scheduling each agent
 - Logs rotated to `~/finance-logs/`
 - One MCP connection per data source you care about (QuickBooks, Slack, Gmail, etc.)
 
@@ -592,7 +603,25 @@ Start with A. Graduate to B once the team has rhythm.
 | **Read-only consumers** | Just Slack | Read close packets, variance reports, IR drafts |
 | **Anyone wanting ad-hoc queries** | Optionally: Claude Desktop + registry MCP on their own laptop | DM agents for impromptu questions |
 
-The Stack scales from "one person automating their own work" to "a 5-person finance team with declarative approval policy" without changing the agent runtime. The dedicated laptop stays the only place where execution happens.
+The Stack scales from "one person automating their own work" to "a 5-person finance team with declarative approval policy" without changing the agent runtime. The dedicated runtime stays the only place where execution happens.
+
+---
+
+## Customizing agent behavior — v0.3 composability
+
+A v0.3 goal: deployers can customize agent skills, thresholds, and methodologies **without forking the repo**. Instead, drop overrides into `customization/skills/` and `customization/config/`; a precedence-based loader resolves them at runtime.
+
+```
+customization/skills/<agent>/<skill>.md   →  beats agents/<agent>/skills/<skill>.md
+customization/skills/<skill>.md           →  beats skills/<skill>.md (shared)
+customization/config/<agent>.yaml         →  deep-merges over agents/<agent>/config.yaml
+```
+
+Shipped skills are marked `overridable: true` (most) or `overridable: false` (canonical schemas like proposal-format that 8 agents agree to). Deployers can also *add* new agent-specific skills via the same overlay folder — the agent enumerates its own skills plus the overlay at load.
+
+This means an FP&A team that wants Volume × Rate × Mix swapped for Customer × Product × Channel can override one skill file rather than fork the stack. Upstream `git pull` never conflicts because all overrides live in gitignored `customization/`.
+
+Design doc: [`docs/v0.3-skill-composability.md`](./docs/v0.3-skill-composability.md). Implementation queued for v0.3 alongside sub-agent fan-out.
 
 ---
 
