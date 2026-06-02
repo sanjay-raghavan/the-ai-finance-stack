@@ -167,7 +167,7 @@ echo $env:ANTHROPIC_API_KEY
 
 ```powershell
 cd $env:USERPROFILE
-git clone https://github.com/sanjayraghavan/the-ai-finance-stack.git
+git clone https://github.com/sanjay-raghavan/the-ai-finance-stack.git
 cd the-ai-finance-stack
 ```
 

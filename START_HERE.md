@@ -12,7 +12,7 @@ One human + one accountant + 12 agents = a full Finance function.
 Clone the repo, drop a config snippet into Claude Desktop, paste your Anthropic API key. **~10 minutes.**
 
 ```bash
-git clone https://github.com/sanjayraghavan/the-ai-finance-stack.git
+git clone https://github.com/sanjay-raghavan/the-ai-finance-stack.git
 ```
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
