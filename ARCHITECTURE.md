@@ -509,12 +509,17 @@ approval_policy:
     approvers: [ap-lead@yourcompany.com, controller@yourcompany.com]
     threshold_usd: 50000
 
-  # Accounts Receivable
+  # Accounts Receivable — bad-debt writeoffs
   - je_type: ar_writeoff
     approvers: [ar-lead@yourcompany.com, controller@yourcompany.com]
     threshold_usd: 5000
 
-  # Invoicing / billing adjustments
+  # AR credit memos — billing dispute reversals
+  - je_type: ar_credit_memo
+    approvers: [ar-lead@yourcompany.com, billing-lead@yourcompany.com]
+    threshold_usd: 10000
+
+  # Invoicing / billing adjustments — rebills, refunds, pass-through corrections
   - je_type: invoice_adjustment
     approvers: [billing-lead@yourcompany.com]
     threshold_usd: 10000

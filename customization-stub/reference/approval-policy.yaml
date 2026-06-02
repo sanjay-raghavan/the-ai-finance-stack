@@ -1,0 +1,134 @@
+# Approval policy — who can approve which JEs, at what thresholds.
+#
+# Read by QBO Poster (and any future write-capable agent) as part of its
+# 8-check validation. An /approve typed in Slack only passes the
+# "authorized-approver" check if the approver's email is listed for the
+# matching je_type and the proposal amount is at or below the threshold
+# (or above threshold AND the approver is named in the higher-tier list).
+#
+# This file scales the Stack from one-person setup to a real finance team
+# with declarative routing. Edit by hand or via the future
+# update-approval-policy skill.
+
+approval_policy:
+
+  # Accounts Payable — invoice payments, vendor disbursements, AP accruals
+  - je_type: ap_disbursement
+    approvers: [ap-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 50000
+    # Above threshold, only the controller can approve
+    above_threshold_approvers: [controller@yourcompany.com, cfo@yourcompany.com]
+
+  # Accounts Receivable — bad-debt writeoffs (highest-stakes AR decision)
+  - je_type: ar_writeoff
+    approvers: [ar-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 5000
+    above_threshold_approvers: [controller@yourcompany.com, cfo@yourcompany.com]
+
+  # AR credit memo — issued against a customer for billing dispute
+  - je_type: ar_credit_memo
+    approvers: [ar-lead@yourcompany.com, billing-lead@yourcompany.com]
+    threshold_usd: 10000
+    above_threshold_approvers: [controller@yourcompany.com]
+
+  # AR bad-debt provision adjustment — periodic allowance reserve
+  - je_type: ar_bad_debt_provision
+    approvers: [controller@yourcompany.com]
+    threshold_usd: 25000
+    above_threshold_approvers: [cfo@yourcompany.com]
+
+  # Note: AR collection activity (dunning emails, calls) is owned by the
+  # AR Follow-Up agent and does NOT produce a JE — no approval gate
+  # needed. The JE only fires when a payment lands (handled by Bank Recon)
+  # or when collection fails and the receivable is written off (above).
+
+  # Invoicing / billing adjustments — rebills, refunds, pass-through corrections
+  - je_type: invoice_adjustment
+    approvers: [billing-lead@yourcompany.com]
+    threshold_usd: 10000
+    above_threshold_approvers: [controller@yourcompany.com]
+
+  # Standard month-end accruals (Controller's output)
+  - je_type: standard_close_accrual
+    approvers: [close-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 10000
+    above_threshold_approvers: [controller@yourcompany.com]
+
+  # Prepaid amortization (Prepay Manager's output)
+  - je_type: prepaid_amortization
+    approvers: [close-lead@yourcompany.com]
+    threshold_usd: 25000
+    above_threshold_approvers: [controller@yourcompany.com]
+
+  # Bank reconciliation adjustments (Bank Recon's output)
+  - je_type: bank_reconciliation_adjustment
+    approvers: [bank-recon-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 1000
+    above_threshold_approvers: [controller@yourcompany.com]
+
+  # Treasury / cash movements
+  - je_type: treasury_movement
+    approvers: [treasury-lead@yourcompany.com]
+    threshold_usd: 25000
+    above_threshold_approvers: [cfo@yourcompany.com]   # any large outflow goes to CFO
+
+  # Payroll JEs
+  - je_type: payroll
+    approvers: [payroll-lead@yourcompany.com]
+    threshold_usd: 200000
+    above_threshold_approvers: [cfo@yourcompany.com]
+
+  # Crypto MTM (Crypto Reconciler's output) — if you're on the crypto pack
+  - je_type: crypto_mtm
+    approvers: [controller@yourcompany.com]
+    threshold_usd: 100000
+    above_threshold_approvers: [cfo@yourcompany.com]
+
+  # Revenue recognition adjustments
+  - je_type: revenue_recognition
+    approvers: [controller@yourcompany.com]
+    threshold_usd: 25000
+    above_threshold_approvers: [cfo@yourcompany.com]
+
+  # Intercompany — always dual approval, no thresholds bypassed
+  - je_type: intercompany
+    approvers: [controller@yourcompany.com, cfo@yourcompany.com]
+    require_dual_approval: true
+
+  # Anything not matched above falls through to controller + CFO dual
+  - je_type: "*"                          # catch-all
+    approvers: [controller@yourcompany.com, cfo@yourcompany.com]
+    require_dual_approval: true
+
+# ─── Notes for small teams ─────────────────────────────────────────────
+# If one person fills several roles (common for a 1-3 person finance team),
+# just put the same email under multiple je_type blocks. Example:
+#
+#   close-lead@yourcompany.com = controller@yourcompany.com = the same human
+#
+# The approver-check just looks at the email list; it doesn't care if two
+# placeholders resolve to the same person.
+
+# ─── How escalation works ──────────────────────────────────────────────
+# If a proposal's amount is *above* the threshold, the regular approvers
+# can no longer approve alone. The above_threshold_approvers list is the
+# only one QBO Poster will accept. Example:
+#
+#   ap_disbursement of $30K → ap-lead OR controller can /approve
+#   ap_disbursement of $75K → only controller or CFO can /approve
+#   ap_disbursement of $250K → only CFO (per cfo's own internal limit) —
+#     OR, if CFO is the highest, the proposal halts and requires email/
+#     out-of-band approval
+
+# ─── Dual approval ─────────────────────────────────────────────────────
+# require_dual_approval: true means TWO different approvers must each
+# /approve before QBO Poster will execute. Both /approve commands must
+# come from emails in the approvers list within the configured
+# approval-recency window (defaults to 24h).
+
+# ─── Audit log ─────────────────────────────────────────────────────────
+# Every approval — successful or rejected — is appended to the audit log
+# with: timestamp, approver email, Slack user ID, content hash, je_type,
+# amount, decision. The log lives at
+# ~/finance-data/audit/<agent>-audit-log.jsonl on the dedicated runtime
+# and persists per the audit-log-entry shared skill's schema.

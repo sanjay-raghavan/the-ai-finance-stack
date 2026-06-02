@@ -39,6 +39,28 @@ Each agent has a recommended schedule (Controller fires on BD-1 at 5pm; FP&A on 
 
 Or skip the schedule entirely and just ask in Claude Desktop: *"Close the books for May"*, *"What's our cash position?"*, *"Draft the investor update"*. Same agents, ad-hoc.
 
+**Where do the agents actually run?** Any always-on machine works. Three common options:
+
+- **A spare laptop you already own** — repurpose an old MacBook or Windows laptop you're not using daily. Cheapest. Setup guides in [`SETUP_DEDICATED_LAPTOP.md`](SETUP_DEDICATED_LAPTOP.md) (Mac) and [`SETUP_DEDICATED_LAPTOP_WINDOWS.md`](SETUP_DEDICATED_LAPTOP_WINDOWS.md) (Windows).
+- **A purpose-built Mac mini or NUC** — ~$600 one-time. Low power, quiet, fits in a closet. Same setup as the laptop guides; treat it like a Mac you own.
+- **A virtual server** — Hetzner CCX13 (~$15/mo), Lightsail, DigitalOcean Droplet, etc. Always-on, no physical machine to maintain. Linux variant; the setup pattern is the same as the Mac guide but uses systemd timers instead of launchd. Linux guide coming in a future doc release.
+
+The agents don't care where they run. They need: stable network, ~2GB RAM at peak, your OAuth grants to QBO / Slack / banking MCPs, and persistent disk for `customization/` and `~/finance-data/`. Pick the option that matches your budget and operational comfort.
+
+---
+
+## Your finance team
+
+The runtime is **one machine**, but the team participating is the whole finance org. The dedicated runtime executes the agents; everyone interacts through Slack.
+
+- **You (the stack owner)** maintain the runtime + the customization layer. ~30 min per close + occasional maintenance.
+- **Function leads** (AP, AR, invoicing, accruals, prepays, bank recon, payroll, treasury) only need Slack. They read posts in `#finance-ops`, approve JE proposals in their authority by typing `/approve <id>` in `#finance-approvals`, and DM agents for ad-hoc questions like `@treasury what's our PSP float?`. No software install. No agent runtime on their machine.
+- **Read-only consumers** (CFO, exec team, board) also live in Slack. They watch the channels, read the close packets and variance reports posted there, and never need to install anything.
+
+Approval routing lives in [`customization-stub/reference/approval-policy.yaml`](customization-stub/reference/approval-policy.yaml) — declarative, function-aligned, supports thresholds and dual-approval. Map function-lead placeholders to your team's real emails.
+
+See **[ARCHITECTURE.md → Scaling from one human to a whole finance team](ARCHITECTURE.md#scaling-from-one-human-to-a-whole-finance-team)** for the full pattern: how Mac and Windows team members participate identically, how the customization layer scales across multiple humans, and how the approval policy routes.
+
 ---
 
 ## Meet your agents
