@@ -487,8 +487,9 @@ What changes when you scale to a team is the *interaction surface*, not the *exe
               │  #fpa-ops · #treasury-ops · etc.      │
               └──────────────────────────────────────┘
                ▲          ▲          ▲          ▲
-            Sanjay     Yuliia    Accountant    others
-            (Mac)      (PC)      (Mac/PC)      …
+            Owner    AP lead   AR / close   Treasury
+                                lead         lead
+            (Mac)    (PC)       (Mac/PC)    …
 ```
 
 Each team member only needs Slack access. They read posts, approve JE proposals by typing `/approve <id>`, DM agents for ad-hoc questions (`@treasury what's our cash position?`), and post inline corrections.
@@ -503,22 +504,53 @@ This lives in `customization/reference/approval-policy.yaml`:
 
 ```yaml
 approval_policy:
-  - je_type: payroll
-    approvers: [yuliia@matterlabs.dev]
-    threshold_usd: 200000
+  # Accounts Payable
+  - je_type: ap_disbursement
+    approvers: [ap-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 50000
 
-  - je_type: treasury_movement
-    approvers: [sanjay@matterlabs.dev]
-    threshold_usd: 25000  # any amount above requires CFO
+  # Accounts Receivable
+  - je_type: ar_writeoff
+    approvers: [ar-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 5000
 
-  - je_type: standard_close_accrual
-    approvers: [accountant@matterlabs.dev, sanjay@matterlabs.dev]
+  # Invoicing / billing adjustments
+  - je_type: invoice_adjustment
+    approvers: [billing-lead@yourcompany.com]
     threshold_usd: 10000
 
+  # Standard month-end accruals
+  - je_type: standard_close_accrual
+    approvers: [close-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 10000
+
+  # Prepaid amortization (Prepay Manager output)
+  - je_type: prepaid_amortization
+    approvers: [close-lead@yourcompany.com]
+    threshold_usd: 25000
+
+  # Bank reconciliation adjustments
+  - je_type: bank_reconciliation_adjustment
+    approvers: [bank-recon-lead@yourcompany.com, controller@yourcompany.com]
+    threshold_usd: 1000
+
+  # Treasury / large outflows
+  - je_type: treasury_movement
+    approvers: [treasury-lead@yourcompany.com, cfo@yourcompany.com]
+    threshold_usd: 25000  # any amount above requires CFO
+
+  # Payroll
+  - je_type: payroll
+    approvers: [payroll-lead@yourcompany.com]
+    threshold_usd: 200000
+
+  # Intercompany — always dual approval, no thresholds
   - je_type: intercompany
-    approvers: [sanjay@matterlabs.dev]
+    approvers: [cfo@yourcompany.com, controller@yourcompany.com]
     require_dual_approval: true
 ```
+
+The role placeholders (`ap-lead`, `ar-lead`, `close-lead`, etc.) are aligned to typical finance-function ownership. Map them to actual emails in your `customization/reference/approval-policy.yaml`. Small finance teams may have one person filling several roles — that's fine; just list the same email under multiple `je_type` blocks.
 
 The audit log captures who approved what, with what content hash, when. Every entry is attributable to a specific human.
 
@@ -542,12 +574,12 @@ Start with A. Graduate to B once the team has rhythm.
 
 ### What this means in practice
 
-| Team member | Setup needed | Daily interaction |
+| Role | Setup needed | Daily interaction |
 |---|---|---|
-| **Owner** (Sanjay) | Dedicated laptop running agents; manages customization layer | 30 min/close + maintenance |
+| **Stack owner** | Dedicated laptop running agents; manages customization layer | 30 min/close + maintenance |
 | **Backup operator** | Read access to customization repo; SSH/RDP access to dedicated laptop for emergencies | Step in when owner is out |
-| **Other approvers** (Yuliia, accountant, etc.) | Just Slack | Approve proposals in their authority via `/approve` |
-| **Read-only consumers** | Just Slack | Read close packets, variance, IR drafts |
+| **Function leads** (AP, AR, invoicing, accruals, prepays, bank recon, payroll, treasury) | Just Slack | Approve proposals in their function's authority via `/approve` |
+| **Read-only consumers** | Just Slack | Read close packets, variance reports, IR drafts |
 | **Anyone wanting ad-hoc queries** | Optionally: Claude Desktop + registry MCP on their own laptop | DM agents for impromptu questions |
 
 The Stack scales from "one person automating their own work" to "a 5-person finance team with declarative approval policy" without changing the agent runtime. The dedicated laptop stays the only place where execution happens.

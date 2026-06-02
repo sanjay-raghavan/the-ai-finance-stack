@@ -98,7 +98,7 @@ proposal_path: "~/finance-data/approved/PROP-2026-04-01-0007.md"
 originating_agent: controller
 originating_skill: accrual-entries
 proposal_content_hash: "sha256:abc123..."        # critical — used by Poster for integrity check
-approved_by: "Sanjay Raghavan"
+approved_by: "controller@yourcompany.com"
 approved_by_user_id: "U1234567"                  # Slack user ID for authentication
 approved_at: "2026-04-01T11:23:18Z"
 approved_via: "slack"

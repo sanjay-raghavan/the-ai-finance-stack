@@ -119,7 +119,7 @@ expense_account: "6210 - Insurance Expense"
 department: G&A
 status: active                    # active / suspended / expired / canceled
 period_recognized_through: 2026-04
-approved_by: "Sanjay Raghavan"
+approved_by: "controller@yourcompany.com"
 approved_on: 2026-04-05
 notes: "Annual policy. No interim adjustments expected."
 ```

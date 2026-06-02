@@ -39,7 +39,7 @@ A schedule record in `~/finance-data/prepayments/active-schedules.yaml` (once ap
   department: G&A
   status: active
   period_recognized_through: null    # set after first amortization
-  approved_by: "Sanjay Raghavan"
+  approved_by: "controller@yourcompany.com"
   approved_on: 2026-04-05
   notes: "Annual policy. Renewal of PRP-2025-0015 at +9%."
   amendments: []                     # populated if schedule is later amended
