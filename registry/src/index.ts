@@ -670,7 +670,28 @@ const LANDING_PAGE = `<!DOCTYPE html>
     </div>
   </div>
 
-  <p>Beyond v0.2: industry packs for PSP and SaaS; v0.3+ adds investment research, options & derivatives, private capital, and wealth management packs (Series II of the curriculum).</p>
+  <h2>What's planned for v0.3</h2>
+  <p>Two foundational pieces designed in v0.2; implementation queued for v0.3. Both are about making the Stack composable for the deployer — customize without forking, scale without sacrificing context.</p>
+  <div class="grid-2">
+    <div>
+      <strong>Skill composability</strong><br/>
+      Precedence-based override system: deployers drop a customized version of any shipped skill into <code>customization/skills/&lt;agent&gt;/&lt;skill&gt;.md</code> and the runtime loads it instead. Add new skills the same way. Disable shipped skills with a stub. Threshold + config overrides via <code>customization/config/&lt;agent&gt;.yaml</code>. Upstream <code>git pull</code> never conflicts because everything lives in gitignored <code>customization/</code>. Design: <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/docs/v0.3-skill-composability.md"><code>docs/v0.3-skill-composability.md</code></a>.
+    </div>
+    <div>
+      <strong>Sub-agent fan-out for Controller</strong><br/>
+      Controller's reconciliations pass becomes a parent orchestrator that spawns short-lived sub-agents in parallel (bank-rec / AR-rec / AP-rec / intercompany / crypto), each with focused context. Parent synthesizes results into the close packet. Same audit log, same approval gates — just faster on Day 2 and cleaner under context pressure. Design: <a href="https://github.com/sanjay-raghavan/the-ai-finance-stack/blob/main/docs/v0.3-controller-fanout.md"><code>docs/v0.3-controller-fanout.md</code></a>.
+    </div>
+    <div>
+      <strong>Linux / VPS install guide</strong><br/>
+      Parallel to the Mac and Windows setup guides. Systemd timers, common VPS providers (Hetzner / Lightsail / DigitalOcean). Mac and Windows guides shipped in v0.2; Linux/VPS guide pending validation.
+    </div>
+    <div>
+      <strong>Slack-driven customization updates</strong><br/>
+      An <code>update-reference</code> agent that watches <code>#finance-ops</code> for messages like <em>"tag vendor X as Cloud Infrastructure"</em>, drafts a PR to the customization repo, awaits approval, and pulls. Replaces the current gatekeeper pattern with a faster Slack-native loop.
+    </div>
+  </div>
+
+  <p>Beyond v0.3: industry packs for PSP and SaaS; v0.4+ adds investment research, options & derivatives, private capital, and wealth management packs (Series II of the curriculum).</p>
 
   <h2>Companion lesson series</h2>
   <p>The Stack is the <em>artifact</em>. The <a href="https://sanjayraghavan.substack.com">AI-Powered Finance Substack</a> is the <em>why and how</em> — 43 lessons across 8 modules. Module 7 (the agent track) is where the Stack gets introduced, dissected, and built up from first principles. If you want to understand the design decisions, that's where they're documented.</p>
