@@ -524,23 +524,37 @@ const LANDING_PAGE = `<!DOCTYPE html>
     <strong>v0.1 inventory:</strong> 12 agents across 3 packs, 3 shipped shared skills (with 6 more queued for v0.2), and a 4-tier MCP integration framework covering 8 bundled local connectors for the tools where official MCPs are missing or admin-gated. MIT-licensed.
   </div>
 
-  <h2>The architecturally distinctive idea</h2>
-  <p>Most "AI for Finance" projects let agents post to the GL directly. That's how silent failures happen, how closed-period entries sneak through, and how auditors lose confidence in your books.</p>
-  <p>This Stack inverts that: <strong>every JE-writing agent proposes; exactly one execution-pack agent posts — and only after explicit human approval, validated through 8 checks</strong> (authorized approver, content-hash integrity, period not closed, accounts active, idempotency, approver limits, approval recency, structural validity). One Slack reply per entry. An AI Finance team you can deploy in production without losing sleep.</p>
+  <div class="hero" style="background:#f4f8ff;border-color:#4a6fa5;">
+    <strong>New in v0.2 — the customization layer.</strong> A <code>customization/</code> folder convention plus a <code>setup-org</code> skill that walks you through grounding every agent in your specific books: tagged chart of accounts, non-GAAP rules (declarative YAML — works for SaaS, crypto, real-estate), output templates, and writing voice. ~30 minutes once; every agent in the Stack then speaks your books. See <code>customization-stub/README.md</code> in the repo.
+  </div>
 
-  <div class="arch-box">
-    <strong>The flow:</strong><br/>
-    Proposing agent (Controller, Prepay Manager, AP Watcher, Bank Recon, etc.) writes a proposal →
-    Slack approval request posted in <code>#finance-approvals</code> →
-    Human types <code>/approve &lt;proposal-id&gt;</code> →
-    Approval handler writes record with SHA-256 hash →
-    QBO Poster validates (8 checks) and commits →
-    Confirmation written, audit log appended, Slack thread replied.
+  <h2>How it works in 3 steps</h2>
+  <div class="grid-2">
+    <div>
+      <strong>1. Install</strong><br/>
+      Clone the repo, drop the config snippet below into Claude Desktop, paste your Anthropic API key. ~10 minutes. You'll see "Browse The AI Finance Stack" in Claude Desktop.
+    </div>
+    <div>
+      <strong>2. Customize for your books</strong><br/>
+      Run the <code>setup-org</code> skill. Upload your CoA, declare non-GAAP rules in plain English, drop in your board-deck and exec-update templates. ~30 minutes, one-time.
+    </div>
+    <div>
+      <strong>3. Schedule, or run on-demand</strong><br/>
+      Install agents once; they fire on their built-in schedule. Or just ask in Claude Desktop: <em>"Close the books for May"</em>, <em>"What's our cash position?"</em>, <em>"Draft the investor update."</em>
+    </div>
+    <div>
+      <strong>Then: one human + one accountant + 12 agents = a full Finance function.</strong><br/>
+      You stay in the loop for every JE approval. Everything else the agents handle, watch, and surface only when you need to decide.
+    </div>
   </div>
 
   <h2>Install</h2>
-  <p>Paste this into your Claude Desktop config file
-  (<code>~/Library/Application Support/Claude/claude_desktop_config.json</code> on macOS):</p>
+  <p>Paste this into your Claude Desktop config file:</p>
+  <ul>
+    <li><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+    <li><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
+    <li><strong>Linux:</strong> <code>~/.config/Claude/claude_desktop_config.json</code></li>
+  </ul>
   <pre>{
   "mcpServers": {
     "the-ai-finance-stack": {
@@ -550,6 +564,12 @@ const LANDING_PAGE = `<!DOCTYPE html>
 }</pre>
   <p>Restart Claude Desktop, then in a fresh conversation ask:
   <em>"What agents are available in the-ai-finance-stack registry?"</em> — Claude calls <code>browse_agents</code> and returns the full catalog. From there you can have Claude install specific agents into your project folder, customize them, and run them.</p>
+
+  <p><strong>Start here →</strong> <a href="https://github.com/sanjayraghavan/the-ai-finance-stack/blob/main/START_HERE.md"><code>START_HERE.md</code></a> for the 1-page friendly entry · <a href="https://github.com/sanjayraghavan/the-ai-finance-stack/blob/main/MEET_YOUR_AGENTS.md"><code>MEET_YOUR_AGENTS.md</code></a> for the team roster · <a href="https://github.com/sanjayraghavan/the-ai-finance-stack/blob/main/YOUR_FIRST_CLOSE.md"><code>YOUR_FIRST_CLOSE.md</code></a> for an hour-by-hour walkthrough of closing your first month.</p>
+
+  <p><strong>Production setup (dedicated laptop running agents on schedule):</strong> <a href="https://github.com/sanjayraghavan/the-ai-finance-stack/blob/main/SETUP_DEDICATED_LAPTOP.md"><code>SETUP_DEDICATED_LAPTOP.md</code></a> for Mac · <a href="https://github.com/sanjayraghavan/the-ai-finance-stack/blob/main/SETUP_DEDICATED_LAPTOP_WINDOWS.md"><code>SETUP_DEDICATED_LAPTOP_WINDOWS.md</code></a> for Windows. The Windows guide is v0.1 draft pending validation — Linux guide planned.</p>
+
+  <p><strong>Scaling to a finance team?</strong> The agents only run on one machine (the dedicated laptop). The rest of your team participates through Slack — read posts, approve JE proposals with <code>/approve &lt;id&gt;</code>, DM agents for ad-hoc questions. No team-member install needed regardless of their OS. See the <a href="https://github.com/sanjayraghavan/the-ai-finance-stack/blob/main/ARCHITECTURE.md#scaling-from-one-human-to-a-whole-finance-team">"Scaling from one human to a whole finance team"</a> section of <code>ARCHITECTURE.md</code>.</p>
 
   <h2>The 12 agents (v0.1)</h2>
 
@@ -580,6 +600,20 @@ const LANDING_PAGE = `<!DOCTYPE html>
     <tr><td><strong>QBO Poster</strong></td><td>The only agent permitted to write to QuickBooks Online. Reads approval records, runs 8-check validation, posts to QBO via MCP, verifies the post landed, writes immutable confirmation. Idempotent. Halts on anything unexpected.</td></tr>
   </table>
 
+  <h2>The architecturally distinctive idea</h2>
+  <p>Most "AI for Finance" projects let agents post to the GL directly. That's how silent failures happen, how closed-period entries sneak through, and how auditors lose confidence in your books.</p>
+  <p>This Stack inverts that: <strong>every JE-writing agent proposes; exactly one execution-pack agent posts — and only after explicit human approval, validated through 8 checks</strong> (authorized approver, content-hash integrity, period not closed, accounts active, idempotency, approver limits, approval recency, structural validity). One Slack reply per entry. An AI Finance team you can deploy in production without losing sleep.</p>
+
+  <div class="arch-box">
+    <strong>The flow:</strong><br/>
+    Proposing agent (Controller, Prepay Manager, AP Watcher, Bank Recon, etc.) writes a proposal →
+    Slack approval request posted in <code>#finance-approvals</code> →
+    Human types <code>/approve &lt;proposal-id&gt;</code> →
+    Approval handler writes record with SHA-256 hash →
+    QBO Poster validates (8 checks) and commits →
+    Confirmation written, audit log appended, Slack thread replied.
+  </div>
+
   <h2>Shared skill layer</h2>
   <p>The foundation that prevents schema drift across agents. When multiple agents need the same canonical schema, methodology, or format, it lives in <code>skills/</code> at the repo root and any agent imports it as <code>stack:&lt;name&gt;</code>. Also invokable directly by a human in Claude Desktop — no agent required.</p>
 
@@ -588,6 +622,9 @@ const LANDING_PAGE = `<!DOCTYPE html>
     <tr><td><code>stack:proposal-format</code></td><td>Canonical JE proposal schema (8 agents import it)</td><td class="status-shipped">v0.1 — shipped</td></tr>
     <tr><td><code>stack:approval-record-format</code></td><td>Canonical approval record (auth, content hash, integrity)</td><td class="status-shipped">v0.1 — shipped</td></tr>
     <tr><td><code>stack:slack-conventions</code></td><td>Channel routing, severity emojis, mention rules, link format</td><td class="status-shipped">v0.1 — shipped</td></tr>
+    <tr><td><code>stack:qbo-query-recipes</code></td><td>The playbook every QBO-touching agent follows — resolve via customization/ first, then call MCPs</td><td class="status-shipped">v0.2 — shipped</td></tr>
+    <tr><td><code>stack:finance-view-switch</code></td><td>Generic GAAP/Non-GAAP P&L + bridge (reads non-gaap-rules.yaml — works for SaaS, crypto, real-estate)</td><td class="status-shipped">v0.2 — shipped</td></tr>
+    <tr><td><code>stack:setup-org</code></td><td>Interactive ~30 min walkthrough to populate <code>customization/</code> for a new org</td><td class="status-shipped">v0.2 — shipped</td></tr>
     <tr><td><code>stack:audit-log-entry</code></td><td>JSONL schema for every agent's audit log</td><td class="status-v02">v0.2</td></tr>
     <tr><td><code>stack:variance-narrative</code></td><td>Driver-aware variance commentary</td><td class="status-v02">v0.2</td></tr>
     <tr><td><code>stack:driver-decomposition</code></td><td>Volume × Rate × Mix + Headcount × Cost-per-Head</td><td class="status-v02">v0.2</td></tr>
@@ -612,8 +649,12 @@ const LANDING_PAGE = `<!DOCTYPE html>
   <h2>What's coming in v0.2</h2>
   <div class="grid-2">
     <div>
+      <strong>Customization layer</strong> (shipped)<br/>
+      <code>customization/</code> + <code>setup-org</code> skill. Every agent reads your tagged CoA, non-GAAP rules, output templates, and voice samples before acting. Generic agents become yours.
+    </div>
+    <div>
       <strong>Bundled MCPs</strong><br/>
-      8 Python MCP servers (qbo, bill-com, ramp, mercury, stripe, brex, rippling, carta) running locally under your OAuth grant
+      8 Python MCP servers (qbo shipped read-only; bill-com, ramp, mercury, stripe, brex, rippling, carta queued) running locally under your OAuth grant
     </div>
     <div>
       <strong>6 more shared skills</strong><br/>
