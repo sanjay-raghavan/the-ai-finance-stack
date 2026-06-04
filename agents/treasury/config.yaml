@@ -67,6 +67,12 @@ skills:
   - cash-position-snapshot
   - thirteen-week-projection
   - runway-calc
+  # Burn methodology chain (v0.2). Composed by monthly-cash-burn; consumed by runway-calc.
+  - monthly-operating-burn        # P&L operating loss + non-cash adjustments
+  - working-capital-bridge        # ΔAR, Δprepay, ΔAP, Δaccrued → cash impact
+  - non-operating-bridge          # interest income, FX on cash, etc.
+  - one-time-items-classifier     # tags items as recurring / non-recurring for pro-forma view
+  - monthly-cash-burn             # the headline — composes the four above + capex
 
 # ─── Schedule ───────────────────────────────────────────────────
 schedule:

@@ -13,7 +13,7 @@ Weekly — Friday 4pm ET. On-demand from CFO requests ("what's our runway right 
 ## Inputs
 
 - Current operating cash (from most recent `cash-position-snapshot` — operating only, exclude merchant float and restricted cash)
-- Trailing 3 months of monthly net cash burn (operating cash burn rate from the accounting MCP or computed from cash snapshots)
+- Trailing 3 months of monthly cash burn (per period, from `monthly-cash-burn` which composes operating burn + working capital + non-operating + capex). Use the as-reported figure for the base runway and pro-forma (one-offs removed) for the headline.
 - Trailing 12 months of net revenue (for the optional revenue-scaling upper bound)
 - FP&A Analyst's latest forecast (from `~/finance-data/forecasts/`) — for the revenue-growth-adjusted upper bound
 - Configured thresholds from `config.yaml`
@@ -86,9 +86,13 @@ If runway is below the configured critical threshold (default: 6 months), the me
 
 From the most recent hourly snapshot. Must be operating cash only — explicitly subtract merchant float and restricted cash. Show the subtraction in the calculation table for audit clarity.
 
-### Step 2 — Compute trailing-period net burn
+### Step 2 — Compute trailing-period burn
 
-For each of the trailing 3 months, compute: (operating cash at month start) − (operating cash at month end), adjusted for any explicit transfers in from non-operating sources (e.g., a deliberate sweep from a treasury account, a financing event).
+For each of the trailing 3 months, call `monthly-cash-burn` with `view: both`. You'll get an as-reported burn and a pro-forma burn (one-offs removed) for each month.
+
+The runway range uses pro-forma burn for the *headline* runway figure (matches what CFOs use for planning) and as-reported burn for the *lower-bound* (more conservative). Both numbers should appear in the report so the user sees the gap.
+
+Verify each month's `monthly-cash-burn` reconciles to the actual cash change for that month (per the cash-position-snapshot bridges). If the bridge doesn't tie within 5%, surface that to `#finance-alerts` before producing the runway report — the underlying burn computation needs investigation.
 
 The result is **net** burn — burn already net of revenue. Don't double-count revenue.
 
