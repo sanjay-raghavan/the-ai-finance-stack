@@ -6,14 +6,21 @@ The spec every agent in The AI Finance Stack follows. Designed to be compatible 
 
 ```
 agents/<agent-name>/
-├── CLAUDE.md          # Required. Identity, role, operating instructions.
-├── skills/            # Required (can be empty). Reusable capabilities.
-│   ├── <skill-1>.md
-│   ├── <skill-2>.md
+├── CLAUDE.md                       # Required. Identity, role, operating instructions.
+├── skills/                          # Required (can be empty). Reusable capabilities.
+│   ├── <skill-1>/                   # Each skill is its own kebab-case folder...
+│   │   └── SKILL.md                 # ...containing a required SKILL.md (Anthropic standard)
+│   ├── <skill-2>/
+│   │   ├── SKILL.md
+│   │   ├── references/              # Optional: deeper docs loaded on-demand
+│   │   ├── scripts/                 # Optional: executable code (Python, Bash, etc.)
+│   │   └── assets/                  # Optional: templates, fonts, etc.
 │   └── ...
-├── config.yaml        # Required. MCPs, schedule, goals, model config.
-└── README.md          # Required. Human-readable install + usage notes.
+├── config.yaml                      # Required. MCPs, schedule, goals, model config.
+└── README.md                        # Required. Human-readable install + usage notes.
 ```
+
+Skills follow [Anthropic's open Agent Skills standard](https://docs.claude.com/en/docs/build-with-claude/skills) — portable across Claude.ai, Claude Code, and the API. Each skill is a kebab-case folder containing `SKILL.md` (required) plus optional progressive-disclosure subfolders. See [`skills/README.md`](./skills/README.md) for the shared-skill format.
 
 `<agent-name>` is kebab-case and globally unique within The AI Finance Stack (e.g., `close-orchestrator`, `ap-watcher`, `variance-alert`).
 

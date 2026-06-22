@@ -55,17 +55,17 @@ QBO Poster invokes skills from four scopes — see [`/skills/README.md`](../../s
 
 | Skill | What it does |
 |---|---|
-| [`approval-validation`](skills/approval-validation.md) | Runs 8 checks on every approval record before posting: well-formed YAML, authorized approver within limits, content hash matches proposal, not previously posted, structural JE validity, accounts active in QBO, period not closed, approval not stale. Binary PASS/FAIL. |
-| [`post-to-qbo`](skills/post-to-qbo.md) | Pre-flight idempotency check at QBO, payload build, API call via `quickbooks` MCP, post-verification re-query, confirmation file write, Slack reply, audit log entry. Halts on silent failures. |
-| [`reversal-handling`](skills/reversal-handling.md) | Auto-reverses prior-period accruals on Day 1 at 6am ET (before other agents' morning work). Handles human-initiated reversals of posted entries. Maintains bidirectional links between original and reversal. |
+| [`approval-validation`](skills/approval-validation/SKILL.md) | Runs 8 checks on every approval record before posting: well-formed YAML, authorized approver within limits, content hash matches proposal, not previously posted, structural JE validity, accounts active in QBO, period not closed, approval not stale. Binary PASS/FAIL. |
+| [`post-to-qbo`](skills/post-to-qbo/SKILL.md) | Pre-flight idempotency check at QBO, payload build, API call via `quickbooks` MCP, post-verification re-query, confirmation file write, Slack reply, audit log entry. Halts on silent failures. |
+| [`reversal-handling`](skills/reversal-handling/SKILL.md) | Auto-reverses prior-period accruals on Day 1 at 6am ET (before other agents' morning work). Handles human-initiated reversals of posted entries. Maintains bidirectional links between original and reversal. |
 
 ### Stack-shared skills (imported from `/skills/`)
 
 | Skill | Why this agent needs it |
 |---|---|
-| [`stack:proposal-format`](../../skills/proposal-format.md) | Canonical schema for the JE proposals QBO Poster validates and posts. Without this contract being shared with proposing agents, the propose→approve→post pipeline breaks. |
-| [`stack:approval-record-format`](../../skills/approval-record-format.md) | Canonical schema for the approval records QBO Poster reads. Defines the authentication anchor, content-hash integrity check, and approver-limits structure. |
-| [`stack:slack-conventions`](../../skills/slack-conventions.md) | Channel routing (`#finance-approvals` for confirmations, `#finance-alerts` for every failure), severity prefixes, link format. |
+| [`stack:proposal-format`](../../skills/proposal-format/SKILL.md) | Canonical schema for the JE proposals QBO Poster validates and posts. Without this contract being shared with proposing agents, the propose→approve→post pipeline breaks. |
+| [`stack:approval-record-format`](../../skills/approval-record-format/SKILL.md) | Canonical schema for the approval records QBO Poster reads. Defines the authentication anchor, content-hash integrity check, and approver-limits structure. |
+| [`stack:slack-conventions`](../../skills/slack-conventions/SKILL.md) | Channel routing (`#finance-approvals` for confirmations, `#finance-alerts` for every failure), severity prefixes, link format. |
 
 ### Finance plugin + global utility
 

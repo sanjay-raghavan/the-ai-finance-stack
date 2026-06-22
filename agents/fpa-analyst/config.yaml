@@ -47,7 +47,25 @@ finance_plugin_skills:
 stack_skills:
   required:
     - stack:slack-conventions       # channel routing for #fpa-ops, #fpa-budget, #finance-alerts
-  optional: []
+    - stack:qbo-query-recipes       # the playbook for any QBO query — read customization/ first
+  optional:
+    - stack:finance-view-switch     # GAAP/Non-GAAP P&L with bridge; reads non-gaap-rules.yaml
+
+# ─── Customization layer dependencies ───────────────────────────
+customization:
+  required:
+    - org.yaml
+    - reference/chart-of-accounts.xlsx
+    - reference/closed-periods.md
+  optional:
+    - reference/non-gaap-rules.yaml
+    - reference/exec-categories.yaml
+    - reference/vendor-map.xlsx
+    - reference/customer-map.xlsx
+    - reference/entity-map.xlsx
+    - templates/variance-package.xlsx
+    - templates/board-deck.pptx
+    - voice/ceo-update-style.md
 
 # ─── Inherited "Global Default" skills ──────────────────────────
 global_skills:

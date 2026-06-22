@@ -82,15 +82,23 @@ The unit of value. Each agent is a folder following the [AGENT_PACKAGE_FORMAT.md
 
 ```
 agents/close-orchestrator/
-├── CLAUDE.md          # Identity, role, instructions
-├── skills/            # Reusable capabilities the agent can invoke
-│   ├── close-calendar.md
-│   ├── accrual-entries.md
-│   ├── reconciliation.md
-│   └── variance-narrative.md
-├── config.yaml        # MCPs required, schedule, goals, model
-└── README.md          # Human-readable: what this agent does and how to install it
+├── CLAUDE.md                                # Identity, role, instructions
+├── skills/                                   # Reusable capabilities the agent can invoke
+│   ├── close-calendar/
+│   │   └── SKILL.md                          # Anthropic-standard skill format
+│   ├── accrual-entries/
+│   │   ├── SKILL.md
+│   │   └── references/                       # Optional: deeper context loaded on-demand
+│   │       └── asc-606-accrual-criteria.md
+│   ├── reconciliation/
+│   │   └── SKILL.md
+│   └── variance-narrative/
+│       └── SKILL.md
+├── config.yaml                               # MCPs required, schedule, goals, model
+└── README.md                                 # Human-readable: what this agent does
 ```
+
+Skills follow [Anthropic's open Agent Skills standard](https://docs.claude.com/en/docs/build-with-claude/skills) — a kebab-case folder containing `SKILL.md` (required) plus optional `scripts/`, `references/`, and `assets/` subfolders for progressive disclosure. This format is portable across Claude.ai, Claude Code, and the API.
 
 **Design principles:**
 - **Self-contained.** Drop an agent folder anywhere — it should run.
@@ -108,7 +116,7 @@ The Stack supports **four scopes of skill**, in order of specificity:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  AGENT-PRIVATE — agents/<name>/skills/<skill>.md                │
+│  AGENT-PRIVATE — agents/<name>/skills/<skill>/SKILL.md                │
 │  ────────────────────────────────────────────                   │
 │  Tightly coupled to one agent's identity, schedule, workflow.   │
 │  Examples: close-calendar (Controller), transaction-matching    │
@@ -118,7 +126,7 @@ The Stack supports **four scopes of skill**, in order of specificity:
 └─────────────────────────────────────────────────────────────────┘
                             +
 ┌─────────────────────────────────────────────────────────────────┐
-│  STACK-SHARED — skills/<skill>.md (at repo root)                │
+│  STACK-SHARED — skills/<skill>/SKILL.md (at repo root)                │
 │  ────────────────────────────────────────────                   │
 │  Used by multiple agents. Single source of truth for schemas,   │
 │  formats, methodologies that lose meaning if duplicated.        │
@@ -612,8 +620,8 @@ The Stack scales from "one person automating their own work" to "a 5-person fina
 A v0.3 goal: deployers can customize agent skills, thresholds, and methodologies **without forking the repo**. Instead, drop overrides into `customization/skills/` and `customization/config/`; a precedence-based loader resolves them at runtime.
 
 ```
-customization/skills/<agent>/<skill>.md   →  beats agents/<agent>/skills/<skill>.md
-customization/skills/<skill>.md           →  beats skills/<skill>.md (shared)
+customization/skills/<agent>/<skill>/SKILL.md  →  beats agents/<agent>/skills/<skill>/SKILL.md
+customization/skills/<skill>/SKILL.md           →  beats skills/<skill>/SKILL.md (shared)
 customization/config/<agent>.yaml         →  deep-merges over agents/<agent>/config.yaml
 ```
 

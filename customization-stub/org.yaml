@@ -1,0 +1,62 @@
+# Organization profile — read by every agent in the Stack.
+# Fill in once during setup; update when your structure changes.
+
+org:
+  name: "Acme Corp"                    # display name
+  legal_name: "Acme Corporation, Inc." # exact name as it appears on docs
+  short_code: "ACME"                   # used in filenames and slack messages
+
+# Entities you care about. The first one is the default for any query
+# that doesn't specify entity. Add subsidiaries below as additional list items.
+entities:
+  - name: "Acme Corp"
+    short_code: "Acme"
+    role: "parent"
+    jurisdiction: "Delaware, USA"
+    functional_currency: "USD"
+    accounting_system: "quickbooks"     # quickbooks | netsuite | xero
+    realm_id: ""                        # fill in the QBO realm ID (or NetSuite account ID)
+
+  # - name: "Acme Labs, Inc."
+  #   short_code: "Labs"
+  #   role: "subsidiary"
+  #   jurisdiction: "Delaware, USA"
+  #   functional_currency: "USD"
+  #   accounting_system: "quickbooks"
+  #   realm_id: ""
+
+default_entity: "Acme Corp"             # if user doesn't say, this is what we query
+
+# Fiscal year. Calendar = Jan-Dec. Non-calendar = state your start month.
+fiscal_year:
+  type: "calendar"                      # calendar | non-calendar
+  start_month: 1                        # 1=Jan, 2=Feb, ... only matters if non-calendar
+
+base_currency: "USD"
+
+# Close cadence — when does each month close? Used to decide whether to query
+# live QBO or the period-end archive.
+close_cadence:
+  target_close_business_day: 10         # books typically locked by BD10 of the next month
+  current_open_period: "2026-06"        # update this whenever a period closes
+
+# Reporting cadence
+reporting:
+  monthly_pack: true
+  quarterly_review: true
+  board_deck: "monthly"                 # monthly | quarterly | none
+  investor_update: "monthly"            # monthly | quarterly | annual | none
+
+# Where outputs go on disk. Relative to runtime data dir (~/finance-data/).
+output_paths:
+  closes: "closes/{year}-{month:02d}/"
+  variance: "variance/{year}-{month:02d}/"
+  board: "board/{year}-{month:02d}/"
+  ir: "ir/{year}-{month:02d}/"
+
+# Drive / Box / SharePoint location for monthly archive files, if you use one.
+# Agents will prefer this for closed-period queries over live QBO.
+archive_location:
+  type: "google_drive"                  # google_drive | box | sharepoint | onedrive | local | none
+  path: ""                              # e.g. "Finance/Month Ends/" — folder under the root
+  monthly_file_pattern: "{Entity} {YYYY-MM} Final.xlsx"   # how monthly files are named

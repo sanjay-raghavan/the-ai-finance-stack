@@ -59,3 +59,8 @@ finance-logs/
 .DS_Store?
 ehthumbs.db
 Thumbs.db
+
+# Customization layer — per-org books, templates, and voice samples.
+# Stays on each user's machine; never commit. Stubs in customization-stub/ DO get committed.
+customization/
+!customization-stub/

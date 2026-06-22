@@ -1,0 +1,62 @@
+# Non-GAAP exclusions for your org. Declarative — the finance-view-switch
+# skill reads this file and applies the rules mechanically. No code changes
+# needed when you update exclusions; just edit this file.
+
+non_gaap:
+  # Set to false if you don't report non-GAAP. The view-switch skill will
+  # then return GAAP-only with no bridge.
+  enabled: false
+
+  # The exclusions. Three ways to specify each one — use whichever fits.
+  exclusions:
+    # By exact account number
+    # - account_number: 6065
+    #   account_name: "Stock-Based Compensation"
+    #   reason: "Non-cash equity expense"
+
+    # By account number range (inclusive on both ends)
+    # - account_range: [9900, 9975]
+    #   reason: "Crypto / FX / derivative MTM adjustments"
+
+    # By account-name pattern (glob)
+    # - account_pattern: "Restructuring*"
+    #   reason: "Non-recurring restructuring"
+
+    # Examples by industry (delete the ones that don't apply):
+
+    # SaaS-style:
+    # - account_pattern: "Stock-Based Compensation*"
+    # - account_pattern: "Restructuring*"
+    # - account_pattern: "Acquisition*"
+    # - account_pattern: "Litigation Settlement*"
+
+    # Crypto-native style:
+    # - account_pattern: "Token Compensation*"
+    # - account_pattern: "*Realized Gain/Loss*Crypto*"
+    # - account_pattern: "*Unrealized*"
+    # - account_pattern: "Derivative*"
+    # - account_pattern: "Trading Fees*"
+    # - account_pattern: "Exchange Gain or Loss"
+
+    # Real-estate style:
+    # - account_pattern: "Fair Value Adjustment*Investment Property*"
+    # - account_pattern: "Gain on Sale of Property*"
+
+  # How the GAAP-to-Non-GAAP bridge is presented to the user.
+  presentation:
+    # side-by-side                     two P&L columns | adjustments column
+    # single-pnl-adjustments-block     one P&L + a "GAAP adjustments" subtotal section
+    # bridge-only                      just the reconciliation table, no P&L
+    style: "side-by-side"
+
+    # gaap-only                        for open periods, return GAAP only ("Non-GAAP not yet computed")
+    # gaap-with-estimate               for open periods, return GAAP + best-effort Non-GAAP estimate
+    # refuse                           don't return anything for open periods
+    open_period_handling: "gaap-with-estimate"
+
+    # Should the skill always include the reconciling adjustments, even when
+    # the user only asked for one view?
+    always_show_bridge: true
+
+  # Who's the audience by default. Affects how much explanation is embedded.
+  default_audience: "finance"          # finance | exec | board | ir | auditor

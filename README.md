@@ -2,9 +2,27 @@
 
 A free, open-source collection of Finance AI agents that run on your own machine. Connect any MCP-compatible client (Claude Desktop, Claude Code, etc.) to install agents that handle the recurring grunt work of running a Finance function — the month-end close, variance monitoring, fraud watching, AR follow-up, cash position, SOX sampling, and more.
 
-**One human + one accountant + six agents = a full Finance function.**
+**One human + one accountant + 12 agents = a full Finance function.**
 
 Built and maintained by [Sanjay Raghavan](https://sanjayraghavan.substack.com), Finance Leader at Matter Labs, as the companion artifact to the *AI-Powered Finance* curriculum.
+
+---
+
+## 👋 New here?
+
+Three short docs, in order, get you from "I just heard about this" to "Controller is closing my books":
+
+1. **[START_HERE.md](START_HERE.md)** — the 1-page overview: tagline, 3-step adoption, what to expect
+2. **[MEET_YOUR_AGENTS.md](MEET_YOUR_AGENTS.md)** — the full team roster with what each agent owns, when they run, and when you intervene
+3. **[YOUR_FIRST_CLOSE.md](YOUR_FIRST_CLOSE.md)** — hour-by-hour walkthrough of closing your first month with Controller
+
+For the technical install (Claude Desktop config, MCP setup, schedules), go to **[QUICK_START.md](QUICK_START.md)**.
+
+The rest of this README is the reference spec — useful when you're ready to customize, contribute, or understand the architecture.
+
+---
+
+> **New in v0.2:** A `customization/` layer that lets you ground every agent in your specific chart of accounts, non-GAAP definitions, output templates, and writing voice. Run the `setup-org` skill once (~30 min) and every agent in the Stack starts speaking your books. See `customization-stub/README.md`.
 
 ---
 
@@ -59,9 +77,9 @@ The shared skill layer is what prevents schema drift across agents — when five
 
 | Shared skill | What it standardizes | Status |
 |---|---|---|
-| [`stack:proposal-format`](./skills/proposal-format.md) | Canonical JE proposal schema — the contract holding propose→approve→post together | 🟢 v0.1 — shipped |
-| [`stack:approval-record-format`](./skills/approval-record-format.md) | Canonical approval record schema (approver auth, content hash, Slack ref) | 🟢 v0.1 — shipped |
-| [`stack:slack-conventions`](./skills/slack-conventions.md) | Channel routing, severity emojis, link format, mention rules — every agent's Slack output | 🟢 v0.1 — shipped |
+| [`stack:proposal-format`](./skills/proposal-format/SKILL.md) | Canonical JE proposal schema — the contract holding propose→approve→post together | 🟢 v0.1 — shipped |
+| [`stack:approval-record-format`](./skills/approval-record-format/SKILL.md) | Canonical approval record schema (approver auth, content hash, Slack ref) | 🟢 v0.1 — shipped |
+| [`stack:slack-conventions`](./skills/slack-conventions/SKILL.md) | Channel routing, severity emojis, link format, mention rules — every agent's Slack output | 🟢 v0.1 — shipped |
 | `stack:audit-log-entry` | JSONL schema for every agent's audit log | 🔵 v0.2 |
 | `stack:variance-narrative`, `stack:driver-decomposition`, `stack:kpi-snapshot`, `stack:close-packet-format`, `stack:budget-checker` | Five more queued for v0.2 | 🔵 v0.2 |
 
@@ -77,7 +95,7 @@ For tools where the official MCP is admin-gated (QBO) or doesn't exist (Mercury,
 
 | MCP | What it connects to | Used by agents | Status |
 |-----|-----|-----|-----|
-| [`qbo`](./mcps/) | QuickBooks Online | Controller, Prepay Manager, Bank Recon, AP Watcher, AR Follow-Up, QBO Poster | 🔵 v0.2 — scaffold pending |
+| [`qbo`](./mcps/qbo/) | QuickBooks Online (12 read-only tools) | Controller, Prepay Manager, Bank Recon, AP Watcher, AR Follow-Up, QBO Poster | 🟢 v0.1 — shipped (read-only; writes v0.2) |
 | [`bill-com`](./mcps/) | BILL (AP, AR, Spend & Expense) | AP Watcher, AR Follow-Up, Controller | 🔵 v0.2 — scaffold pending |
 | [`ramp`](./mcps/) | Ramp (cards + bills) | AP Watcher, Controller | 🔵 v0.2 — scaffold pending |
 | [`mercury`](./mcps/) | Mercury (banking) | Treasury, Bank Recon | 🔵 v0.2 — scaffold pending |

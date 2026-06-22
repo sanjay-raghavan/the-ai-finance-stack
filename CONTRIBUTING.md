@@ -66,11 +66,12 @@ Follow the format in [`AGENT_PACKAGE_FORMAT.md`](./AGENT_PACKAGE_FORMAT.md):
 
 ```
 agents/your-agent-name/
-├── CLAUDE.md          # Required — agent identity, role, instructions
-├── skills/            # Required — at least one skill
-│   └── <skill-name>.md
-├── config.yaml        # Required — MCPs, schedule, goals, model
-└── README.md          # Required — human-readable install + usage
+├── CLAUDE.md                  # Required — agent identity, role, instructions
+├── skills/                    # Required — at least one skill
+│   └── <skill-name>/          # Each skill is a kebab-case folder...
+│       └── SKILL.md           # ...containing SKILL.md (Anthropic standard)
+├── config.yaml                # Required — MCPs, schedule, goals, model
+└── README.md                  # Required — human-readable install + usage
 ```
 
 Reference [`agents/controller/`](./agents/controller/) or [`agents/fpa-analyst/`](./agents/fpa-analyst/) as canonical examples.

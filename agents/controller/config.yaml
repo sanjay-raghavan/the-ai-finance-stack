@@ -54,7 +54,25 @@ stack_skills:
   required:
     - stack:proposal-format         # canonical schema for the JE proposals Controller writes (accruals, recon adjustments)
     - stack:slack-conventions       # channel routing, severity prefixes, link format
-  optional: []
+    - stack:qbo-query-recipes       # the playbook for any QBO query — read customization/ first
+  optional:
+    - stack:finance-view-switch     # GAAP/Non-GAAP P&L with bridge; reads non-gaap-rules.yaml
+
+# ─── Customization layer dependencies ───────────────────────────
+# Files the agent reads from customization/ before acting. The runtime
+# warns the user at install time if any "required" file is missing.
+customization:
+  required:
+    - org.yaml
+    - reference/chart-of-accounts.xlsx
+    - reference/closed-periods.md
+  optional:
+    - reference/vendor-map.xlsx
+    - reference/non-gaap-rules.yaml
+    - reference/exec-categories.yaml
+    - reference/entity-map.xlsx
+    - reference/atb/                  # closed-period ATB snapshots
+    - templates/close-packet.md       # output format reference
 
 # ─── Inherited "Global Default" skills ──────────────────────────
 # All agents in The AI Finance Stack inherit these.

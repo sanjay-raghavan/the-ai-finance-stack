@@ -1,0 +1,77 @@
+# Exec / board-deck roll-up categories.
+#
+# Most companies present operating expenses in their board deck under 8-12
+# rolled-up categories, not at the granular GL level. Define yours here.
+# Every P&L account in chart-of-accounts.xlsx maps to one of these via the
+# `Exec Category` column.
+
+exec_categories:
+  operating_expenses:
+    - name: "Personnel"
+      description: "Salaries, benefits, payroll taxes, recruiting, T&E"
+      example_categories: ["Personnel", "T&E", "Recruiting"]
+      sort_order: 1
+
+    - name: "Prof Services"
+      description: "Legal, audit, tax, consultants, outsourced engineering"
+      example_categories: ["Legal", "Accounting & Audit", "Consulting & Professional Services"]
+      sort_order: 2
+
+    - name: "G&A"
+      description: "Insurance, taxes, board fees, bad debt, other G&A"
+      example_categories: ["Insurance", "Board of Directors", "G&A — Other"]
+      sort_order: 3
+
+    - name: "Marketing"
+      description: "Ads, events, sponsorships, swag, lead gen, marketing tools"
+      example_categories: ["Marketing"]
+      sort_order: 4
+
+    - name: "R&D"
+      description: "R&D supplies, tooling, test equipment, contracted research"
+      example_categories: ["R&D — Other"]
+      sort_order: 5
+
+    - name: "Subscriptions"
+      description: "SaaS subscriptions, software licenses"
+      example_categories: ["Subscriptions"]
+      sort_order: 6
+
+    - name: "Office"
+      description: "Office supplies, meals, printing, charitable, departmental"
+      example_categories: ["Office", "Departmental — Other"]
+      sort_order: 7
+
+    - name: "Occupancy"
+      description: "Rent, utilities, facility services, telecom"
+      example_categories: ["Occupancy & Facilities"]
+      sort_order: 8
+
+    # Industry-specific bucket — keep, rename, or remove
+    - name: "Crypto & Security"
+      description: "Crypto gas fees, security audits, bug bounties"
+      example_categories: ["Crypto & Security"]
+      sort_order: 9
+
+  below_operating:
+    - name: "D&A"
+      description: "Depreciation and amortization"
+      sort_order: 10
+
+    - name: "Interest & Other"
+      description: "Interest income/expense, other income/expense"
+      sort_order: 11
+
+    - name: "Non-GAAP Adjustments"
+      description: "Items excluded from Non-GAAP (token comp, MTM, etc.)"
+      sort_order: 12
+
+  revenue:
+    - name: "Revenue"
+      description: "Top-line revenue across all streams"
+      sort_order: 0
+
+  cogs:
+    - name: "COGS"
+      description: "Cost of revenue / cost of services"
+      sort_order: 0

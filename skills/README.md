@@ -13,13 +13,13 @@ For the rationale and the full integration pattern (agent-private skills vs shar
 Every agent in the Stack can declare two kinds of skills in its `config.yaml`:
 
 ```yaml
-# Skills owned by this agent — live in agents/<name>/skills/<skill>.md
+# Skills owned by this agent — live in agents/<name>/skills/<skill>/SKILL.md
 skills:
   - close-calendar          # agent-private; tightly coupled to Controller's identity
   - accrual-entries
   - reconciliations
 
-# Skills imported from the shared layer — live in skills/<skill>.md (this folder)
+# Skills imported from the shared layer — live in skills/<skill>/SKILL.md (this folder)
 stack_skills:
   required:
     - stack:proposal-format
@@ -83,7 +83,7 @@ stack_skills:
 The agent's skill file then references the schema by name rather than redefining it:
 
 ```markdown
-# In agents/prepay-manager/skills/monthly-amortization.md:
+# In agents/prepay-manager/skills/monthly-amortization/SKILL.md:
 
 ### Step 4 — Generate the proposal
 
@@ -98,7 +98,7 @@ Build the proposal record following the canonical schema in
 
 This means:
 
-1. **One place to update the schema** — when QBO's external-ID handling matures in v0.2 and we want to use a native field rather than `PrivateNote`, the change happens in `skills/proposal-format.md` once, not in 8 places.
+1. **One place to update the schema** — when QBO's external-ID handling matures in v0.2 and we want to use a native field rather than `PrivateNote`, the change happens in `skills/proposal-format/SKILL.md` once, not in 8 places.
 
 2. **Cross-agent consistency** — every proposing agent emits proposals in the same shape, so QBO Poster's validator can parse them uniformly.
 
@@ -111,7 +111,7 @@ This means:
 When you find yourself describing the same thing in two agents' skill files:
 
 1. Check this README to see if a shared skill already exists. If yes, point both agents at it.
-2. If no, draft a new shared skill in `skills/<name>.md` following the format of [`proposal-format.md`](./proposal-format.md).
+2. If no, draft a new shared skill in `skills/<name>/SKILL.md` following the format of [`proposal-format.md`](./proposal-format.md).
 3. Update both (or all) agents' configs to declare `stack_skills.required: stack:<your-skill>`.
 4. Update the agents' skill files to reference the shared skill rather than restating it inline.
 5. Add a row to the catalog table above.
