@@ -35,7 +35,7 @@ import {
 export class FinanceStackMCP extends McpAgent {
   server = new McpServer({
     name: "the-ai-finance-stack",
-    version: "0.1.0",
+    version: "0.2.0",
   });
 
   async init(): Promise<void> {
@@ -69,7 +69,7 @@ export class FinanceStackMCP extends McpAgent {
               text: JSON.stringify(
                 {
                   registry: "the-ai-finance-stack",
-                  version: "0.1.0",
+                  version: "0.2.0",
                   repo: REPO_URL,
                   total_agents: filtered.length,
                   agents: summary,
@@ -312,9 +312,9 @@ export class FinanceStackMCP extends McpAgent {
               text: JSON.stringify(
                 {
                   name: "The AI Finance Stack",
-                  version: "0.1.0",
+                  version: "0.2.0",
                   description:
-                    "A free, open-source collection of Finance AI agents that run on your own machine. 12 agents across 3 packs (10 core + 1 crypto + 1 execution) plus 3 shared skills plus a four-tier MCP integration framework. The architecturally distinctive idea: propose → human approve → post.",
+                    "A free, open-source collection of Finance AI agents that run on your own machine. 12 agents across 3 packs (10 core + 1 crypto + 1 execution) plus 6 shared skills (Anthropic SKILL.md folder convention) plus a four-tier MCP integration framework plus a customization layer for grounding agents in your books. The architecturally distinctive idea: propose → human approve → post.",
                   author: "Sanjay Raghavan",
                   license: "MIT",
                   repo: REPO_URL,
@@ -390,7 +390,7 @@ export default {
         JSON.stringify(
           {
             registry: "the-ai-finance-stack",
-            version: "0.1.0",
+            version: "0.2.0",
             repo: REPO_URL,
             total_agents: AGENTS.length,
             total_shared_skills: SHARED_SKILLS.length,
@@ -707,7 +707,7 @@ const LANDING_PAGE = `<!DOCTYPE html>
   </ul>
 
   <p class="footer">
-    MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a> · MCP Registry v0.1.0<br/>
+    MIT License · Author: <a href="https://www.linkedin.com/in/sanjayraghavan/">Sanjay Raghavan</a> · MCP Registry v0.2.0<br/>
     <a href="/connect">Connect QBO</a> · <a href="/launch">Launch</a> · <a href="/disconnect">Disconnect</a> · <a href="/license">License (MIT)</a> · <a href="/privacy">Privacy Policy</a><br/>
     Star the repo on GitHub if this is useful.
   </p>
